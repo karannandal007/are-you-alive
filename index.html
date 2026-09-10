@@ -158,7 +158,7 @@
         toastTimeoutRef.current = setTimeout(() => setToastVisible(false), 2400);
       }, []);
 
-      // Evasive move restricted strictly to TOP 50% with collision prevention
+      // Evasive move restricted strictly to TOP 70% with collision prevention
       const dodge = useCallback((page) => {
         sound.playBoing();
         setNoClicks(prev => prev + 1);
@@ -171,9 +171,9 @@
         const btnWidth = Math.min(260, window.innerWidth - 32);
         const btnHeight = 50;
 
-        // Guardrail: top 50% of the viewport only
+        // Guardrail: top 70% of the viewport only
         const minY = 20;
-        const maxY = Math.floor(window.innerHeight * 0.48) - btnHeight;
+        const maxY = Math.floor(window.innerHeight * 0.70) - btnHeight;
 
         const minX = 16;
         const maxX = window.innerWidth - btnWidth - 16;
@@ -197,7 +197,7 @@
         let bestX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
         let bestY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
 
-        // Try up to 30 times to find a clean non-overlapping slot in the top 50%
+        // Try up to 30 times to find a clean non-overlapping slot in the top 70%
         for (let i = 0; i < 30; i++) {
           const candX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
           const candY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
@@ -458,7 +458,7 @@
             </div>
           )}
 
-          {/* Toast Notification (Safely in lower screen) */}
+          {/* Toast Notification */}
           <div
             className={`fixed left-1/2 -translate-x-1/2 z-[9999] w-[90%] max-w-[380px] rounded-2xl bg-white px-5 py-3.5 text-center font-bold text-neutral-900 shadow-2xl transition-all duration-300 ${
               toastVisible ? 'bottom-[35px] opacity-100 scale-100' : '-bottom-[120px] opacity-0 scale-90 pointer-events-none'
