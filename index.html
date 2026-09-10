@@ -30,7 +30,6 @@
 <body class="bg-[#070b14] text-white">
   <div id="root"></div>
 
-  <!-- We load the standalone bundle with the green-screen-free hamster directly -->
   <script type="text/babel">
     const { useState, useEffect, useRef, useCallback } = React;
 
@@ -147,14 +146,14 @@
       const noButton1Ref = useRef(null);
       const noButton2Ref = useRef(null);
       const tomVideoRef = useRef(null);
-      const hamsterVideoRef = useRef(null);
+      const danceVideoRef = useRef(null);
 
       useEffect(() => {
         if (currentPage === 1 && tomVideoRef.current) {
           tomVideoRef.current.play().catch(() => {});
         }
-        if (currentPage === 2 && hamsterVideoRef.current) {
-          hamsterVideoRef.current.play().catch(() => {});
+        if (currentPage === 2 && danceVideoRef.current) {
+          danceVideoRef.current.play().catch(() => {});
         }
       }, [currentPage]);
 
@@ -191,10 +190,11 @@
         setCurrentPage(page);
         setNoClicks(0);
         setNoBtnPos(null);
-        if (page === 2) {
+        // Confetti triggers ONLY when reaching Screen 3
+        if (page === 3) {
           sound.playFanfare();
           if (window.confetti) {
-            window.confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
+            window.confetti({ particleCount: 150, spread: 85, origin: { y: 0.55 } });
           }
         }
       }, []);
@@ -233,7 +233,7 @@
             <div className="absolute -bottom-32 -right-32 h-[400px] w-[400px] rounded-full bg-teal-500/15 blur-[100px]"></div>
           </div>
 
-          {/* SCREEN 1: TOM THE CAT */}
+          {/* ================= SCREEN 1: TOM VIDEO ================= */}
           {currentPage === 1 && (
             <div className="relative z-10 flex flex-col items-center w-full max-w-[390px] mx-auto">
               <div className="relative z-20 -mb-5 sm:-mb-7 w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center">
@@ -292,7 +292,7 @@
             </div>
           )}
 
-          {/* SCREEN 2: CLEAN CHROMALESS HAMSTER DANCE REEL */}
+          {/* ================= SCREEN 2: DANCING CAT REEL (NO GREEN SCREEN) ================= */}
           {currentPage === 2 && (
             <div className="relative z-10 w-full max-w-[440px] rounded-[32px] border-2 border-cyan-400/35 bg-[#070b14] p-6 sm:p-8 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)]">
               <h1 className="text-2xl sm:text-3xl font-extrabold mb-4 text-white leading-tight">
@@ -301,14 +301,22 @@
 
               <div className="relative w-full overflow-hidden mb-5 flex items-center justify-center">
                 <video
-                  ref={hamsterVideoRef}
-                  src="https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/www/public/placeholder.svg"
+                  ref={danceVideoRef}
+                  src="https://media.tenor.com/jKeYy17E02cAAAPo/ur-mine-you%27re-mine.mp4"
+                  poster="https://media1.tenor.com/m/jKeYy17E02cAAAAC/ur-mine-you%27re-mine.gif"
                   autoPlay
                   loop
                   muted
                   playsInline
-                  className="w-full max-h-[420px] sm:max-h-[460px] object-contain rounded-2xl"
-                />
+                  className="w-full max-h-[380px] sm:max-h-[420px] object-contain rounded-2xl"
+                >
+                  <source src="https://media.tenor.com/jKeYy17E02cAAAPo/ur-mine-you%27re-mine.mp4" type="video/mp4" />
+                  <img
+                    src="https://media1.tenor.com/m/jKeYy17E02cAAAAC/ur-mine-you%27re-mine.gif"
+                    alt="Dancing cat"
+                    className="w-full max-h-[380px] object-contain rounded-2xl"
+                  />
+                </video>
               </div>
 
               <button
@@ -340,7 +348,7 @@
             </div>
           )}
 
-          {/* SCREEN 3: FINALE */}
+          {/* ================= SCREEN 3: NO-PRESSURE FINALE ================= */}
           {currentPage === 3 && (
             <div className="relative z-10 w-full max-w-[450px] rounded-[32px] border-2 border-cyan-400/40 bg-[#070b14] p-6 sm:p-8 text-center shadow-[0_30px_90px_rgba(0,0,0,0.98)]">
               <h1 className="text-2xl sm:text-3xl font-extrabold mb-1.5 text-white tracking-tight">
@@ -366,7 +374,7 @@
                 </div>
               </div>
 
-              {/* Reply Formats */}
+              {/* Approved Reply Formats */}
               <div className="rounded-2xl border border-cyan-400/25 bg-slate-900/60 p-4 text-left mb-5 shadow-inner">
                 <div className="flex items-center justify-between mb-2.5">
                   <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider">
@@ -409,7 +417,7 @@
                 </div>
               </div>
 
-              {/* Actions */}
+              {/* Action Buttons */}
               <div className="space-y-2.5">
                 <button
                   type="button"
