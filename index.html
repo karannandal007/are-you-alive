@@ -146,14 +146,10 @@
       const noButton1Ref = useRef(null);
       const noButton2Ref = useRef(null);
       const tomVideoRef = useRef(null);
-      const danceVideoRef = useRef(null);
 
       useEffect(() => {
         if (currentPage === 1 && tomVideoRef.current) {
           tomVideoRef.current.play().catch(() => {});
-        }
-        if (currentPage === 2 && danceVideoRef.current) {
-          danceVideoRef.current.play().catch(() => {});
         }
       }, [currentPage]);
 
@@ -168,15 +164,72 @@
         sound.playBoing();
         const el = page === 1 ? noButton1Ref.current : noButton2Ref.current;
         const btnWidth = el ? el.offsetWidth : 260;
-        const btnHeight = el ? el.offsetHeight : 50;
-        const pad = 20;
-        const maxX = Math.max(pad, window.innerWidth - btnWidth - pad);
-        const maxY = Math.max(pad, window.innerHeight - btnHeight - pad);
-        const newX = Math.floor(pad + Math.random() * (maxX - pad));
-        const newY = Math.floor(pad + Math.random() * (maxY - pad));
-        setNoBtnPos({ left: newX, top: newY, width: btnWidth });
-      }, []);
+        const btnHeight = el ? el.offsetHeight : 52;
+        
+        // Find Yes button bounds to prevent overlap
+        const yesId = page === 1 ? 'yes1' : 'yes2';
+        const yesEl = document.getElementById(yesId);
+        const yesRect = yesEl ? yesEl.getBoundingClientRect() : null;
 
+        const pad = 16;
+        const minX = pad;
+        const maxX = Math.max(minX + 20, window.innerWidth - btnWidth - pad);
+        const minY = pad + 15;
+        const maxY = Math.max(minY + 20, window.innerHeight - btnHeight - pad - 20);
+
+        let currX = window.innerWidth / 2 - btnWidth / 2;
+        let currY = window.innerHeight * 0.55;
+        if (noBtnPos) {
+          currX = noBtnPos.left;
+          currY = noBtnPos.top;
+        } else if (el) {
+          const r = el.getBoundingClientRect();
+          currX = r.left;
+          currY = r.top;
+        }
+
+        const collidesWithYes = (x, y) => {
+          if (!yesRect) return false;
+          const buffer = 20;
+          return (
+            x < yesRect.right + buffer &&
+            x + btnWidth > yesRect.left - buffer &&
+            y < yesRect.bottom + buffer &&
+            y + btnHeight > yesRect.top - buffer
+          );
+        };
+
+        const minDistance = Math.min(220, Math.max(120, window.innerWidth * 0.35));
+        let bestX = currX < (minX + maxX) / 2 ? maxX : minX;
+        let bestY = currY < (minY + maxY) / 2 ? maxY : minY;
+        let bestDist = -1;
+        let found = false;
+
+        for (let i = 0; i < 40; i++) {
+          const candX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+          const candY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+
+          if (collidesWithYes(candX, candY)) continue;
+
+          const dist = Math.hypot(candX - currX, candY - currY);
+          if (dist >= minDistance) {
+            bestX = candX;
+            bestY = candY;
+            found = true;
+            break;
+          }
+          if (!found || dist > bestDist) {
+            bestDist = dist;
+            bestX = candX;
+            bestY = candY;
+            found = true;
+          }
+        }
+
+        setNoBtnPos({ left: bestX, top: bestY, width: btnWidth });
+      }, [noBtnPos]);
+
+      // Instant evasion on ANY interaction (hover, touch, or click)
       const handleNoInteraction = useCallback((page) => {
         setNoClicks(prev => prev + 1);
         const list = page === 1 ? TOASTS_PAGE1 : TOASTS_PAGE2;
@@ -190,11 +243,12 @@
         setCurrentPage(page);
         setNoClicks(0);
         setNoBtnPos(null);
-        // Confetti triggers ONLY when reaching Screen 3
+
+        // Confetti strictly on Screen 3
         if (page === 3) {
           sound.playFanfare();
           if (window.confetti) {
-            window.confetti({ particleCount: 150, spread: 85, origin: { y: 0.55 } });
+            window.confetti({ particleCount: 160, spread: 85, origin: { y: 0.6 } });
           }
         }
       }, []);
@@ -213,7 +267,7 @@
         const text = getReplyMessage();
         const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
         if (window.confetti) {
-          window.confetti({ particleCount: 90, spread: 70, origin: { y: 0.75 } });
+          window.confetti({ particleCount: 100, spread: 70, origin: { y: 0.75 } });
         }
         window.open(waUrl, '_blank', 'noopener,noreferrer');
       };
@@ -263,14 +317,19 @@
                 </p>
 
                 <button
+                  id="yes1"
+                  type="button"
                   onClick={() => goToPage(2)}
                   className="relative z-20 mb-3.5 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3.5 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
                 >
                   I'm alive! Relax 😂
                 </button>
 
+                {/* Instant Evasive Button */}
                 <button
                   ref={noButton1Ref}
+                  id="no1"
+                  type="button"
                   onClick={() => handleNoInteraction(1)}
                   onMouseEnter={() => handleNoInteraction(1)}
                   onTouchStart={(e) => { e.preventDefault(); handleNoInteraction(1); }}
@@ -280,7 +339,7 @@
                     top: `${noBtnPos.top}px`,
                     width: `${noBtnPos.width}px`
                   } : undefined}
-                  className={`block rounded-full py-3.5 px-5 text-sm sm:text-base font-bold transition-all cursor-pointer ${
+                  className={`block rounded-full py-3.5 px-5 text-sm sm:text-base font-bold transition-all duration-150 cursor-pointer select-none ${
                     noClicks === 0
                       ? 'relative z-20 w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-[0_8px_22px_rgba(244,63,94,0.4)]'
                       : 'z-50 border-2 border-[#ff2a5f] bg-[#1a070f] text-[#ff4d6d] shadow-[0_0_28px_rgba(255,42,95,0.7)]'
@@ -292,42 +351,37 @@
             </div>
           )}
 
-          {/* ================= SCREEN 2: DANCING CAT REEL (NO GREEN SCREEN) ================= */}
+          {/* ================= SCREEN 2: DANCING CAT MEME ================= */}
           {currentPage === 2 && (
             <div className="relative z-10 w-full max-w-[440px] rounded-[32px] border-2 border-cyan-400/35 bg-[#070b14] p-6 sm:p-8 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)]">
               <h1 className="text-2xl sm:text-3xl font-extrabold mb-4 text-white leading-tight">
                 Yaay! I'm so relieved you're fine.
               </h1>
 
+              {/* Animated GIF from Tenor */}
               <div className="relative w-full overflow-hidden mb-5 flex items-center justify-center">
-                <video
-                  ref={danceVideoRef}
-                  src="https://media.tenor.com/jKeYy17E02cAAAPo/ur-mine-you%27re-mine.mp4"
-                  poster="https://media1.tenor.com/m/jKeYy17E02cAAAAC/ur-mine-you%27re-mine.gif"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
+                <img
+                  src="https://media1.tenor.com/m/jKeYy17E02cAAAAC/ur-mine-you%27re-mine.gif"
+                  alt="Dancing cat"
                   className="w-full max-h-[380px] sm:max-h-[420px] object-contain rounded-2xl"
-                >
-                  <source src="https://media.tenor.com/jKeYy17E02cAAAPo/ur-mine-you%27re-mine.mp4" type="video/mp4" />
-                  <img
-                    src="https://media1.tenor.com/m/jKeYy17E02cAAAAC/ur-mine-you%27re-mine.gif"
-                    alt="Dancing cat"
-                    className="w-full max-h-[380px] object-contain rounded-2xl"
-                  />
-                </video>
+                  loading="eager"
+                />
               </div>
 
               <button
+                id="yes2"
+                type="button"
                 onClick={() => goToPage(3)}
                 className="relative z-10 mb-3 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3.5 px-5 font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
               >
                 Fine, I'll text you back now 💬
               </button>
 
+              {/* Instant Evasive Button */}
               <button
                 ref={noButton2Ref}
+                id="no2"
+                type="button"
                 onClick={() => handleNoInteraction(2)}
                 onMouseEnter={() => handleNoInteraction(2)}
                 onTouchStart={(e) => { e.preventDefault(); handleNoInteraction(2); }}
@@ -337,7 +391,7 @@
                   top: `${noBtnPos.top}px`,
                   width: `${noBtnPos.width}px`
                 } : undefined}
-                className={`block rounded-full py-3.5 px-5 text-sm sm:text-base font-bold transition-all cursor-pointer ${
+                className={`block rounded-full py-3.5 px-5 text-sm sm:text-base font-bold transition-all duration-150 cursor-pointer select-none ${
                   noClicks === 0
                     ? 'relative z-10 w-full bg-white/5 border border-white/15 text-slate-300 hover:bg-white/10'
                     : 'z-50 border-2 border-[#ff2a5f] bg-[#1a070f] text-[#ff4d6d] shadow-[0_0_28px_rgba(255,42,95,0.7)]'
