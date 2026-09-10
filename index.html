@@ -291,7 +291,7 @@
             </div>
           )}
 
-          {/* ================= SCREEN 2: BORDERLESS HAMSTER CELEBRATION ================= */}
+          {/* ================= SCREEN 2: BORDERLESS HAMSTER REEL ================= */}
           {currentPage === 2 && (
             <div className="relative z-10 w-full max-w-[440px] rounded-[32px] border-2 border-cyan-400/35 bg-[#070b14] p-6 sm:p-8 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)]">
               <h1 className="text-2xl sm:text-3xl font-extrabold mb-4 text-white leading-tight">
@@ -301,9 +301,12 @@
               <div className="relative w-full overflow-hidden mb-5 flex items-center justify-center">
                 <video
                   ref={hamsterVideoRef}
-                  src="https://media.tenor.com/5574AQ-nZigAAAP1/hamster-dance-meme-hamster-dance-memes.mp4"
-                  autoPlay loop muted playsInline
-                  className="w-full max-h-[380px] object-contain rounded-2xl"
+                  src="hamster-clean.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full max-h-[420px] sm:max-h-[460px] object-contain rounded-2xl"
                 />
               </div>
 
@@ -405,7 +408,7 @@
                 </div>
               </div>
 
-              {/* Action Buttons: Primary WhatsApp Deep Link + Secondary Copy */}
+              {/* Action Buttons */}
               <div className="space-y-2.5">
                 <button
                   type="button"
