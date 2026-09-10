@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Proof of Life - Karan</title>
+  
+  <!-- Tailwind CSS & Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- React & Babel for zero-build execution -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      background-color: #070b14;
+      margin: 0;
+      overflow-x: hidden;
+    }
+    .font-caveat {
+      font-family: 'Caveat', cursive;
+    }
+    .tom-mask {
+      -webkit-mask-image: radial-gradient(circle at center, black 48%, transparent 72%);
+      mask-image: radial-gradient(circle at center, black 48%, transparent 72%);
+    }
+  </style>
+</head>
+<body class="bg-[#070b14] text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // Web Audio Sound Engine
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (AudioContextClass) this.ctx = new AudioContextClass();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+      }
+      playBoing() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          const t = this.ctx.currentTime;
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(140, t);
+          osc.frequency.exponentialRampToValueAtTime(320, t + 0.12);
+          gain.gain.setValueAtTime(0.3, t);
+          gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+          osc.start(t);
+          osc.stop(t + 0.2);
+        } catch (e) {}
+      }
+      playFanfare() {
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const notes = [440, 554, 659, 880];
+          notes.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            const t = this.ctx.currentTime + idx * 0.08;
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.25, t);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+            osc.start(t);
+            osc.stop(t + 0.4);
+          });
+        } catch (e) {}
+      }
+    }
+    const sound = new SoundEngine();
+
+    const TOASTS = [
+      "Nice try! Can't dodge this easily 😏",
+      "I saw you reaching for that button! 🛑",
+      "Nu-uh! That button is illegal! 🙅‍♂️",
+      "Resistance is futile! Press the green one 👆",
+      "Are you really ghosting Karan?! Cold-blooded! 🥶",
+      "Just tap 'I'm alive' and nobody gets hurt 😂",
+      "Plot twist: Ghosting has been revoked! ❌"
+    ];
+
+    function App() {
+      const [currentPage, setCurrentPage] = useState(1);
+      const [noClicks, setNoClicks] = useState(0);
+      const [toastText, setToastText] = useState('');
+      const [toastVisible, setToastVisible] = useState(false);
+      const [noBtnPos, setNoBtnPos] = useState(null);
+      const [selectedReply, setSelectedReply] = useState('haha');
+      const [copied, setCopied] = useState(false);
+
+      const toastIndexRef = useRef(0);
+      const toastTimeoutRef = useRef(null);
+      const noButtonRef = useRef(null);
+      const tomVideoRef = useRef(null);
+      const hamsterVideoRef = useRef(null);
+
+      useEffect(() => {
+        if (currentPage === 1 && tomVideoRef.current) {
+          tomVideoRef.current.play().catch(() => {});
+        }
+        if (currentPage === 2 && hamsterVideoRef.current) {
+          hamsterVideoRef.current.play().catch(() => {});
+        }
+      }, [currentPage]);
+
+      const showToast = useCallback((msg) => {
+        if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+        setToastText(msg);
+        setToastVisible(true);
+        toastTimeoutRef.current = setTimeout(() => setToastVisible(false), 2400);
+      }, []);
+
+      const moveButton = useCallback(() => {
+        sound.playBoing();
+        const btnWidth = noButtonRef.current ? noButtonRef.current.offsetWidth : 260;
+        const btnHeight = noButtonRef.current ? noButtonRef.current.offsetHeight : 50;
+        const pad = 20;
+        const maxX = Math.max(pad, window.innerWidth - btnWidth - pad);
+        const maxY = Math.max(pad, window.innerHeight - btnHeight - pad);
+        const newX = Math.floor(pad + Math.random() * (maxX - pad));
+        const newY = Math.floor(pad + Math.random() * (maxY - pad));
+        setNoBtnPos({ left: newX, top: newY, width: btnWidth });
+      }, []);
+
+      const handleNoInteraction = useCallback(() => {
+        setNoClicks(prev => prev + 1);
+        const msg = TOASTS[toastIndexRef.current % TOASTS.length];
+        toastIndexRef.current += 1;
+        showToast(msg);
+        moveButton();
+      }, [moveButton, showToast]);
+
+      const goToPage = useCallback((page) => {
+        setCurrentPage(page);
+        setNoClicks(0);
+        setNoBtnPos(null);
+        if (page === 2) {
+          sound.playFanfare();
+          if (window.confetti) {
+            window.confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 } });
+          }
+        }
+      }, []);
+
+      const getShareText = () => {
+        if (selectedReply === 'haha') return "I'm alive!! 😂 Relax, was just caught up with stuff!";
+        if (selectedReply === 'bribe') return "I'm alive! And yes, I accept full responsibility and owe you pizza 🍕";
+        return "You caught me! 💀 Signing the official pardon certificate right now!";
+      };
+
+      const copyReply = () => {
+        navigator.clipboard.writeText(getShareText());
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      };
+
+      return (
+        <main className="relative flex min-h-screen w-screen items-center justify-center p-4">
+          {/* Subtle Ambient Light Orbs */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
+            <div className="absolute -top-32 -left-32 h-80 w-80 rounded-full bg-cyan-500/15 blur-[100px]"></div>
+            <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-teal-500/15 blur-[100px]"></div>
+          </div>
+
+          {/* ================= SCREEN 1 ================= */}
+          {currentPage === 1 && (
+            <div className="relative z-10 flex flex-col items-center w-full max-w-[390px] mx-auto">
+              {/* Tom Screaming Meme Video (Kept in his own space above the text, radial borderless mask) */}
+              <div className="relative z-10 -mb-8 w-44 h-44 pointer-events-none select-none tom-mask">
+                <video
+                  ref={tomVideoRef}
+                  src="https://media.tenor.com/RATacRd802sAAAP1/lizard-scream.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              {/* Message Card: Solid dark background strictly in front (z-20) */}
+              <div className="relative z-20 w-full rounded-[28px] border-2 border-cyan-400/40 bg-[#070b14] p-6 sm:p-8 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)]">
+                <span className="font-caveat text-4xl sm:text-5xl font-bold text-[#00f2fe] block mb-1">
+                  Hey, it's Karan.
+                </span>
+
+                <h1 className="text-2xl sm:text-3xl font-extrabold mb-3 text-white leading-tight">
+                  Are you still alive?
+                </h1>
+
+                <p className="text-xs sm:text-sm text-slate-300 mb-6 font-medium leading-relaxed">
+                  I was getting genuinely worried! It's been so quiet, just need a quick sign of life:
+                </p>
+
+                {/* Acceptable Yes Action */}
+                <button
+                  onClick={() => goToPage(2)}
+                  className="mb-3.5 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3.5 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                >
+                  I'm alive! Relax 😂
+                </button>
+
+                {/* Runaway Ghosting Button */}
+                <button
+                  ref={noButtonRef}
+                  onClick={handleNoInteraction}
+                  onMouseEnter={handleNoInteraction}
+                  onTouchStart={(e) => { e.preventDefault(); handleNoInteraction(); }}
+                  style={noBtnPos ? {
+                    position: 'fixed',
+                    left: `${noBtnPos.left}px`,
+                    top: `${noBtnPos.top}px`,
+                    width: `${noBtnPos.width}px`
+                  } : undefined}
+                  className={`block rounded-full py-3.5 px-5 text-sm sm:text-base font-bold transition-all cursor-pointer ${
+                    noClicks === 0
+                      ? 'w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-[0_8px_22px_rgba(244,63,94,0.4)]'
+                      : 'z-50 border-2 border-[#ff2a5f] bg-[#1a070f] text-[#ff4d6d] shadow-[0_0_28px_rgba(255,42,95,0.7)]'
+                  }`}
+                >
+                  Actually ghosting you 👻
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ================= SCREEN 2: HAMSTER CELEBRATION ================= */}
+          {currentPage === 2 && (
+            <div className="relative z-10 w-full max-w-[400px] rounded-[32px] border-2 border-cyan-400/35 bg-[#070b14] p-6 sm:p-8 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)]">
+              <h1 className="text-2xl sm:text-3xl font-extrabold mb-4 text-white leading-tight">
+                THANK GOODNESS! <br/>
+                <span className="text-[#00f2fe]">YOU'RE NOT DEAD!</span> 🎉
+              </h1>
+
+              {/* Seamless dancing hamster video */}
+              <div className="mx-auto my-3 w-64 h-64 overflow-hidden rounded-2xl border border-cyan-400/20 shadow-[0_15px_40px_rgba(0,0,0,0.9)]">
+                <video
+                  ref={hamsterVideoRef}
+                  src="https://media.tenor.com/5574AQ-nZigAAAP1/hamster-dance-meme-hamster-dance-memes.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <p className="text-xs sm:text-sm text-slate-300 mt-4 mb-6 leading-relaxed">
+                Emergency standing down. Karan has officially ceased panic mode! 🕺🐹
+              </p>
+
+              <button
+                onClick={() => goToPage(3)}
+                className="w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3.5 px-6 font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+              >
+                Proceed to Safety Certificate 📜
+              </button>
+            </div>
+          )}
+
+          {/* ================= SCREEN 3: OFFICIAL PARDON RECEIPT ================= */}
+          {currentPage === 3 && (
+            <div className="relative z-10 w-full max-w-[420px] rounded-[32px] border-2 border-teal-400/40 bg-[#070b14] p-6 sm:p-8 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)]">
+              <span className="inline-block rounded-full bg-emerald-500/15 border border-emerald-400/40 px-3.5 py-1 text-xs font-bold text-emerald-300 mb-3">
+                STATUS: OFFICIAL PARDON GRANTED ✨
+              </span>
+
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-2">
+                Proof of Life Receipt
+              </h1>
+              <p className="text-xs text-slate-300 mb-5">
+                Karan has formally rescinded all missing person declarations.
+              </p>
+
+              {/* Quick Reply selector */}
+              <div className="text-left mb-5 space-y-2">
+                <label className="text-xs text-slate-400 font-semibold block uppercase tracking-wider">
+                  Pick a reply to send Karan:
+                </label>
+                {[
+                  { id: 'haha', label: '😂 "Chill! I was just caught up with stuff!"' },
+                  { id: 'bribe', label: '🍕 "I owe you pizza as an apology!"' },
+                  { id: 'caught', label: '💀 "Okay okay, you caught me!"' }
+                ].map(opt => (
+                  <div
+                    key={opt.id}
+                    onClick={() => setSelectedReply(opt.id)}
+                    className={`p-3 rounded-xl border text-xs sm:text-sm cursor-pointer transition-all ${
+                      selectedReply === opt.id
+                        ? 'border-cyan-400 bg-cyan-950/40 text-cyan-200 font-semibold shadow-[0_0_15px_rgba(6,182,212,0.2)]'
+                        : 'border-slate-800 bg-slate-900/50 text-slate-300 hover:border-slate-700'
+                    }`}
+                  >
+                    {opt.label}
+                  </div>
+                ))}
+              </div>
+
+              {/* Copy action */}
+              <button
+                onClick={copyReply}
+                className="w-full rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 py-3.5 px-6 font-bold text-slate-950 shadow-[0_10px_25px_rgba(16,185,129,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer mb-3"
+              >
+                {copied ? '✓ Copied to Clipboard!' : '📋 Copy Reply for Karan'}
+              </button>
+
+              <button
+                onClick={() => goToPage(1)}
+                className="text-xs text-slate-400 hover:text-slate-200 underline cursor-pointer py-1"
+              >
+                ← Test button again from the start
+              </button>
+            </div>
+          )}
+
+          {/* Floating Toast Notification */}
+          {toastVisible && (
+            <div className="fixed bottom-8 z-50 rounded-2xl border border-rose-500/50 bg-[#160b13]/95 px-5 py-3 text-xs sm:text-sm font-bold text-rose-300 shadow-[0_10px_35px_rgba(244,63,94,0.5)] animate-bounce">
+              {toastText}
+            </div>
+          )}
+        </main>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
