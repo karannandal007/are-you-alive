@@ -137,7 +137,7 @@
       const [noClicks, setNoClicks] = useState(0);
       const [toastText, setToastText] = useState('');
       const [toastVisible, setToastVisible] = useState(false);
-      const [offset, setOffset] = useState({ x: 0, y: 0 });
+      const [noBtnPos, setNoBtnPos] = useState(null);
       const [selectedReply, setSelectedReply] = useState('cracked_up');
       const [copied, setCopied] = useState(false);
 
@@ -158,7 +158,7 @@
         toastTimeoutRef.current = setTimeout(() => setToastVisible(false), 2400);
       }, []);
 
-      // Translate-based evasion that works on all mobile screens
+      // Evasive move restricted strictly to TOP 50% with collision prevention
       const dodge = useCallback((page) => {
         sound.playBoing();
         setNoClicks(prev => prev + 1);
@@ -168,25 +168,55 @@
         toastIndexRef.current += 1;
         showToast(msg);
 
-        // Calculate random dodge offset (horizontal: -110px to +110px, vertical: -160px to +160px)
-        setOffset(prev => {
-          let nextX = (Math.random() > 0.5 ? 1 : -1) * (70 + Math.random() * 60);
-          let nextY = (Math.random() > 0.5 ? 1 : -1) * (60 + Math.random() * 110);
-          
-          // Avoid tiny movements
-          if (Math.abs(nextX - prev.x) < 40) nextX = -prev.x || 90;
-          if (Math.abs(nextY - prev.y) < 40) nextY = -prev.y || -90;
+        const btnWidth = Math.min(260, window.innerWidth - 32);
+        const btnHeight = 50;
 
-          return { x: nextX, y: nextY };
-        });
+        // Guardrail: top 50% of the viewport only
+        const minY = 20;
+        const maxY = Math.floor(window.innerHeight * 0.48) - btnHeight;
+
+        const minX = 16;
+        const maxX = window.innerWidth - btnWidth - 16;
+
+        // Yes button rectangle for anti-collision check
+        const yesId = page === 1 ? 'yes1' : 'yes2';
+        const yesEl = document.getElementById(yesId);
+        const yesRect = yesEl ? yesEl.getBoundingClientRect() : null;
+
+        const collidesWithYes = (x, y) => {
+          if (!yesRect) return false;
+          const pad = 16;
+          return (
+            x < yesRect.right + pad &&
+            x + btnWidth > yesRect.left - pad &&
+            y < yesRect.bottom + pad &&
+            y + btnHeight > yesRect.top - pad
+          );
+        };
+
+        let bestX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+        let bestY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+
+        // Try up to 30 times to find a clean non-overlapping slot in the top 50%
+        for (let i = 0; i < 30; i++) {
+          const candX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+          const candY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+          if (!collidesWithYes(candX, candY)) {
+            bestX = candX;
+            bestY = candY;
+            break;
+          }
+        }
+
+        setNoBtnPos({ left: bestX, top: bestY, width: btnWidth });
       }, [showToast]);
 
       const goToPage = useCallback((page) => {
         setCurrentPage(page);
         setNoClicks(0);
-        setOffset({ x: 0, y: 0 });
+        setNoBtnPos(null);
 
-        // Confetti is strictly fired ONLY when reaching Screen 3
+        // Confetti only on Screen 3
         if (page === 3) {
           sound.playFanfare();
           if (window.confetti) {
@@ -267,28 +297,27 @@
                   I'm alive! Relax 😂
                 </button>
 
-                {/* Highly responsive evasion using CSS transforms */}
-                <div className="relative w-full">
-                  <button
-                    id="no1"
-                    type="button"
-                    onClick={(e) => { e.preventDefault(); dodge(1); }}
-                    onMouseEnter={() => dodge(1)}
-                    onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); dodge(1); }}
-                    style={{
-                      transform: `translate3d(${offset.x}px, ${offset.y}px, 0)`,
-                      transition: 'transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1)',
-                      touchAction: 'none'
-                    }}
-                    className={`block w-full rounded-full py-3.5 px-5 text-sm sm:text-base font-bold cursor-pointer select-none ${
-                      noClicks === 0
-                        ? 'relative z-20 bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-[0_8px_22px_rgba(244,63,94,0.4)]'
-                        : 'relative z-50 border-2 border-[#ff2a5f] bg-[#1a070f] text-[#ff4d6d] shadow-[0_0_28px_rgba(255,42,95,0.85)]'
-                    }`}
-                  >
-                    Actually ghosting you 👻
-                  </button>
-                </div>
+                <button
+                  id="no1"
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); dodge(1); }}
+                  onMouseEnter={() => dodge(1)}
+                  onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); dodge(1); }}
+                  style={noBtnPos ? {
+                    position: 'fixed',
+                    left: `${noBtnPos.left}px`,
+                    top: `${noBtnPos.top}px`,
+                    width: `${noBtnPos.width}px`,
+                    zIndex: 999
+                  } : undefined}
+                  className={`block rounded-full py-3.5 px-5 text-sm sm:text-base font-bold cursor-pointer select-none transition-all duration-150 ${
+                    !noBtnPos
+                      ? 'relative z-20 w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-[0_8px_22px_rgba(244,63,94,0.4)]'
+                      : 'border-2 border-[#ff2a5f] bg-[#1a070f] text-[#ff4d6d] shadow-[0_0_28px_rgba(255,42,95,0.85)]'
+                  }`}
+                >
+                  Actually ghosting you 👻
+                </button>
               </div>
             </div>
           )}
@@ -300,7 +329,6 @@
                 Yaay! I'm so relieved you're fine.
               </h1>
 
-              {/* Tenor Animated GIF */}
               <div className="relative w-full overflow-hidden mb-5 flex items-center justify-center">
                 <img
                   src="https://media1.tenor.com/m/jKeYy17E02cAAAAC/ur-mine-you%27re-mine.gif"
@@ -319,28 +347,27 @@
                 Fine, I'll text you back now 💬
               </button>
 
-              {/* Highly responsive evasion using CSS transforms */}
-              <div className="relative w-full">
-                <button
-                  id="no2"
-                  type="button"
-                  onClick={(e) => { e.preventDefault(); dodge(2); }}
-                  onMouseEnter={() => dodge(2)}
-                  onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); dodge(2); }}
-                  style={{
-                    transform: `translate3d(${offset.x}px, ${offset.y}px, 0)`,
-                    transition: 'transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1)',
-                    touchAction: 'none'
-                  }}
-                  className={`block w-full rounded-full py-3.5 px-5 text-sm sm:text-base font-bold cursor-pointer select-none ${
-                    noClicks === 0
-                      ? 'relative z-20 bg-white/5 border border-white/15 text-slate-300 hover:bg-white/10'
-                      : 'relative z-50 border-2 border-[#ff2a5f] bg-[#1a070f] text-[#ff4d6d] shadow-[0_0_28px_rgba(255,42,95,0.85)]'
-                  }`}
-                >
-                  Wait, I changed my mind 🏃
-                </button>
-              </div>
+              <button
+                id="no2"
+                type="button"
+                onClick={(e) => { e.preventDefault(); dodge(2); }}
+                onMouseEnter={() => dodge(2)}
+                onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); dodge(2); }}
+                style={noBtnPos ? {
+                  position: 'fixed',
+                  left: `${noBtnPos.left}px`,
+                  top: `${noBtnPos.top}px`,
+                  width: `${noBtnPos.width}px`,
+                  zIndex: 999
+                } : undefined}
+                className={`block rounded-full py-3.5 px-5 text-sm sm:text-base font-bold cursor-pointer select-none transition-all duration-150 ${
+                  !noBtnPos
+                    ? 'relative z-20 w-full bg-white/5 border border-white/15 text-slate-300 hover:bg-white/10'
+                    : 'border-2 border-[#ff2a5f] bg-[#1a070f] text-[#ff4d6d] shadow-[0_0_28px_rgba(255,42,95,0.85)]'
+                }`}
+              >
+                Wait, I changed my mind 🏃
+              </button>
             </div>
           )}
 
@@ -354,7 +381,6 @@
                 Just glad you're alive. Catch you whenever!
               </p>
 
-              {/* Status Gauges */}
               <div className="grid grid-cols-3 gap-2.5 mb-5 text-center">
                 <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-2.5">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Status</span>
@@ -370,7 +396,6 @@
                 </div>
               </div>
 
-              {/* Approved Reply Formats */}
               <div className="rounded-2xl border border-cyan-400/25 bg-slate-900/60 p-4 text-left mb-5 shadow-inner">
                 <div className="flex items-center justify-between mb-2.5">
                   <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider">
@@ -413,7 +438,6 @@
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="space-y-2.5">
                 <button
                   type="button"
@@ -434,7 +458,7 @@
             </div>
           )}
 
-          {/* Toast Notification */}
+          {/* Toast Notification (Safely in lower screen) */}
           <div
             className={`fixed left-1/2 -translate-x-1/2 z-[9999] w-[90%] max-w-[380px] rounded-2xl bg-white px-5 py-3.5 text-center font-bold text-neutral-900 shadow-2xl transition-all duration-300 ${
               toastVisible ? 'bottom-[35px] opacity-100 scale-100' : '-bottom-[120px] opacity-0 scale-90 pointer-events-none'
