@@ -155,7 +155,7 @@
         if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
         setToastText(msg);
         setToastVisible(true);
-        toastTimeoutRef.current = setTimeout(() => setToastVisible(false), 2400);
+        toastTimeoutRef.current = setTimeout(() => setToastVisible(false), 4000);
       }, []);
 
       // Evasive move restricted strictly to TOP 70% with collision prevention
@@ -248,7 +248,7 @@
         navigator.clipboard.writeText(getReplyMessage());
         setCopied(true);
         showToast(`Copied "${getReplyMessage()}" 👍`);
-        setTimeout(() => setCopied(false), 2000);
+        setTimeout(() => setCopied(false), 4000);
       };
 
       return (
