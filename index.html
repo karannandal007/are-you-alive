@@ -25,8 +25,14 @@
       font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
-      width: 100vw;
-      min-height: 100dvh;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      max-height: 100dvh;
+      overflow: hidden !important;
+      position: fixed;
+      inset: 0;
+      overscroll-behavior: none;
       background-color: #070b14;
       color: #ffffff;
       touch-action: manipulation;
@@ -40,17 +46,9 @@
       transition: left 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
                   top 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    /* Hide scrollbars for clean UI */
-    ::-webkit-scrollbar {
-      display: none;
-    }
-    * {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
   </style>
 </head>
-<body class="relative flex min-h-[100dvh] w-screen items-center justify-center bg-[#070b14] overflow-x-hidden p-4 pt-[env(safe-area-inset-top,16px)] pb-[calc(env(safe-area-inset-bottom,16px)+16px)]">
+<body class="relative flex h-[100dvh] w-screen items-center justify-center bg-[#070b14] overflow-hidden p-3 sm:p-4">
 
   <!-- Ambient Glowing Backdrop -->
   <div class="pointer-events-none fixed inset-0 overflow-hidden z-0">
@@ -59,38 +57,38 @@
   </div>
 
   <!-- ================= SCREEN 1: PROOF OF LIFE ================= -->
-  <div id="screen1" class="relative z-10 flex flex-col items-center w-full max-w-[400px] mx-auto my-auto">
-    <!-- Tom Screaming Lizard: Balanced size filling the upper screen naturally -->
-    <div class="relative z-20 -mb-5 sm:-mb-6 w-44 h-44 sm:w-52 sm:h-52 flex items-center justify-center shrink-0">
+  <div id="screen1" class="relative z-10 flex flex-col items-center w-full max-w-[390px] mx-auto my-auto">
+    <!-- Tom Screaming Lizard: Balanced size, never overflows viewport -->
+    <div class="relative z-20 -mb-4 sm:-mb-5 w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center shrink-0">
       <img
         id="tomImg"
         src="https://i.makeagif.com/media/2-23-2026/ZJ0z2F.gif"
         alt="Tom Screaming Lizard"
-        class="w-full h-full object-cover rounded-3xl border-2 border-cyan-400/50 shadow-[0_0_40px_rgba(6,182,212,0.4)] bg-black"
+        class="w-full h-full object-cover rounded-3xl border-2 border-cyan-400/50 shadow-[0_0_35px_rgba(6,182,212,0.4)] bg-black"
         loading="eager"
       />
     </div>
 
     <!-- Outline Card -->
-    <div class="relative z-20 w-full rounded-[28px] border-2 border-cyan-400/50 bg-[#070b14]/90 p-6 sm:p-7 text-center shadow-[0_0_40px_rgba(6,182,212,0.18)]">
-      <span class="font-caveat text-3xl sm:text-4xl font-bold text-[#00f2fe] block mb-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+    <div class="relative z-20 w-full rounded-[24px] sm:rounded-[28px] border-2 border-cyan-400/50 bg-[#070b14]/90 p-5 sm:p-6 text-center shadow-[0_0_35px_rgba(6,182,212,0.18)]">
+      <span class="font-caveat text-3xl sm:text-4xl font-bold text-[#00f2fe] block mb-0.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
         Hey, it's Karan.
       </span>
 
-      <h1 class="text-2xl sm:text-3xl font-extrabold mb-2 leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+      <h1 class="text-xl sm:text-2xl font-extrabold mb-1.5 leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
         Are you still alive?
       </h1>
 
-      <p class="text-xs sm:text-sm text-slate-200 mb-5 leading-relaxed font-medium drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+      <p class="text-xs sm:text-sm text-slate-200 mb-4 leading-relaxed font-medium drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
         I was getting genuinely worried! It's been so quiet, just need a quick sign of life:
       </p>
 
       <!-- Natural Flow Button Stack (Zero Overlap Guaranteed) -->
-      <div class="flex flex-col gap-3 w-full">
+      <div class="flex flex-col gap-2.5 w-full">
         <button
           id="yes1"
           type="button"
-          class="w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3.5 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] active:scale-95 cursor-pointer transition-transform"
+          class="w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] active:scale-95 cursor-pointer transition-transform"
         >
           I'm alive! Relax 😂
         </button>
@@ -98,7 +96,7 @@
         <button
           id="no1"
           type="button"
-          class="w-full rounded-full py-3.5 px-5 text-sm sm:text-base font-bold bg-gradient-to-r from-rose-500 to-pink-600 text-white border border-rose-400/40 shadow-[0_8px_22px_rgba(244,63,94,0.4)] active:scale-95 cursor-pointer transition-transform"
+          class="w-full rounded-full py-3 px-5 text-sm sm:text-base font-bold bg-gradient-to-r from-rose-500 to-pink-600 text-white border border-rose-400/40 shadow-[0_8px_22px_rgba(244,63,94,0.4)] active:scale-95 cursor-pointer transition-transform"
         >
           Actually ghosting you 👻
         </button>
@@ -107,29 +105,29 @@
   </div>
 
   <!-- ================= SCREEN 2: DANCING RELIEF ================= -->
-  <div id="screen2" class="relative z-10 flex flex-col items-center w-full max-w-[400px] mx-auto my-auto hidden">
-    <div class="w-full rounded-[28px] border-2 border-cyan-400/35 bg-[#070b14]/90 p-5 sm:p-7 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)]">
-      <h1 class="text-xl sm:text-2xl font-extrabold mb-3 text-white leading-tight">
+  <div id="screen2" class="relative z-10 flex flex-col items-center w-full max-w-[390px] mx-auto my-auto hidden">
+    <div class="w-full rounded-[24px] sm:rounded-[28px] border-2 border-cyan-400/35 bg-[#070b14]/90 p-5 sm:p-6 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)]">
+      <h1 class="text-xl sm:text-2xl font-extrabold mb-2.5 text-white leading-tight">
         Yaay! I'm so relieved you're fine.
       </h1>
 
-      <!-- Dancing Cat: Proportionally sized so there's no giant empty void -->
-      <div class="relative w-full overflow-hidden mb-4 flex items-center justify-center">
+      <!-- Dancing Cat: Compact height so it never exceeds any in-app webview height -->
+      <div class="relative w-full overflow-hidden mb-3.5 flex items-center justify-center">
         <img
           id="catImg"
           src="https://c.tenor.com/jKeYy17E02cAAAAM/tenor.gif"
           alt="Dancing cat"
-          class="w-full max-h-[30vh] sm:max-h-[260px] object-contain rounded-2xl"
+          class="w-full max-h-[24vh] sm:max-h-[220px] object-contain rounded-2xl"
           loading="eager"
         />
       </div>
 
       <!-- Natural Flow Button Stack (Zero Overlap Guaranteed) -->
-      <div class="flex flex-col gap-3 w-full">
+      <div class="flex flex-col gap-2.5 w-full">
         <button
           id="yes2"
           type="button"
-          class="w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3.5 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] active:scale-95 cursor-pointer transition-transform"
+          class="w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] active:scale-95 cursor-pointer transition-transform"
         >
           Fine, I'll text you back now 💬
         </button>
@@ -137,7 +135,7 @@
         <button
           id="no2"
           type="button"
-          class="w-full rounded-full py-3.5 px-5 text-sm sm:text-base font-bold bg-white/5 border border-white/15 text-slate-300 active:scale-95 cursor-pointer transition-transform"
+          class="w-full rounded-full py-3 px-5 text-sm sm:text-base font-bold bg-white/5 border border-white/15 text-slate-300 active:scale-95 cursor-pointer transition-transform"
         >
           Wait, I changed my mind 🏃
         </button>
@@ -145,50 +143,50 @@
     </div>
   </div>
 
-  <!-- ================= SCREEN 3: WHATSAPP FINALE (NEVER CROPPED) ================= -->
-  <div id="screen3" class="relative z-10 w-full max-w-[420px] mx-auto my-auto py-2 hidden">
-    <div class="w-full rounded-[28px] border-2 border-cyan-400/40 bg-[#070b14]/95 p-5 sm:p-6 text-center shadow-[0_30px_90px_rgba(0,0,0,0.98)]">
-      <!-- Sparkle Icon: Fully visible at top -->
-      <div class="mx-auto mb-2 flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-400/15 border-2 border-cyan-400/30 text-cyan-300 shadow-[0_0_25px_rgba(6,182,212,0.35)] text-lg">
+  <!-- ================= SCREEN 3: WHATSAPP FINALE (100% FIXED, NO SCROLL) ================= -->
+  <div id="screen3" class="relative z-10 w-full max-w-[390px] mx-auto my-auto hidden">
+    <div class="w-full rounded-[24px] sm:rounded-[28px] border-2 border-cyan-400/40 bg-[#070b14]/95 p-4 sm:p-5 text-center shadow-[0_30px_90px_rgba(0,0,0,0.98)]">
+      <!-- Sparkle Icon: Fully visible -->
+      <div class="mx-auto mb-1.5 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-2xl bg-cyan-400/15 border-2 border-cyan-400/30 text-cyan-300 shadow-[0_0_25px_rgba(6,182,212,0.35)] text-base">
         ✨
       </div>
 
-      <h1 class="text-xl sm:text-2xl font-extrabold mb-1 text-white tracking-tight">
+      <h1 class="text-lg sm:text-xl font-extrabold mb-0.5 text-white tracking-tight">
         Deal accepted!
       </h1>
 
-      <p class="text-xs text-slate-300 mb-3 font-normal">
+      <p class="text-[11px] sm:text-xs text-slate-300 mb-2.5 font-normal">
         Just glad you're alive. Catch you whenever!
       </p>
 
       <!-- Gauges -->
-      <div class="grid grid-cols-3 gap-2 mb-3.5 text-center">
-        <div class="rounded-xl border border-white/10 bg-white/[0.03] p-2">
-          <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Status</span>
-          <span class="text-[11px] sm:text-xs font-bold text-emerald-400">✓ Forgiven</span>
+      <div class="grid grid-cols-3 gap-1.5 sm:gap-2 mb-2.5 text-center">
+        <div class="rounded-xl border border-white/10 bg-white/[0.03] p-1.5 sm:p-2">
+          <span class="text-[9px] uppercase font-bold text-slate-400 block mb-0.5">Status</span>
+          <span class="text-[11px] font-bold text-emerald-400">✓ Forgiven</span>
         </div>
-        <div class="rounded-xl border border-white/10 bg-white/[0.03] p-2">
-          <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Text Debt</span>
-          <span class="text-[11px] sm:text-xs font-bold text-amber-300">$0.00</span>
+        <div class="rounded-xl border border-white/10 bg-white/[0.03] p-1.5 sm:p-2">
+          <span class="text-[9px] uppercase font-bold text-slate-400 block mb-0.5">Text Debt</span>
+          <span class="text-[11px] font-bold text-amber-300">$0.00</span>
         </div>
-        <div class="rounded-xl border border-white/10 bg-white/[0.03] p-2">
-          <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Expectations</span>
-          <span class="text-[11px] sm:text-xs font-bold text-cyan-400">0%</span>
+        <div class="rounded-xl border border-white/10 bg-white/[0.03] p-1.5 sm:p-2">
+          <span class="text-[9px] uppercase font-bold text-slate-400 block mb-0.5">Expectations</span>
+          <span class="text-[11px] font-bold text-cyan-400">0%</span>
         </div>
       </div>
 
       <!-- Reply Picker -->
-      <div class="rounded-xl border border-cyan-400/25 bg-slate-900/60 p-3 text-left mb-3.5 shadow-inner">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">🔥 Approved Reply Formats:</span>
+      <div class="rounded-xl border border-cyan-400/25 bg-slate-900/60 p-2.5 text-left mb-2.5 shadow-inner">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[9px] font-bold text-amber-300 uppercase tracking-wider">🔥 Approved Reply Formats:</span>
           <span class="text-[9px] text-slate-400">Tap to pick</span>
         </div>
 
         <div class="space-y-1.5" id="replyOptions">
           <!-- Option 0: Default Pre-selected (Pure Laughter) -->
-          <div id="reply-0" onclick="selectReply(0)" class="reply-card border border-cyan-400 bg-cyan-500/15 text-white p-2.5 rounded-lg cursor-pointer flex items-center justify-between shadow-[0_0_15px_rgba(6,182,212,0.25)]">
-            <div class="flex items-center gap-2.5">
-              <span class="text-lg">😭</span>
+          <div id="reply-0" onclick="selectReply(0)" class="reply-card border border-cyan-400 bg-cyan-500/15 text-white p-2 sm:p-2.5 rounded-lg cursor-pointer flex items-center justify-between shadow-[0_0_15px_rgba(6,182,212,0.25)]">
+            <div class="flex items-center gap-2">
+              <span class="text-base sm:text-lg">😭</span>
               <div>
                 <p class="text-xs font-semibold">Pure laughter</p>
                 <p class="text-[10px] text-slate-400 font-mono">"omg this cracked me up 😂"</p>
@@ -198,9 +196,9 @@
           </div>
 
           <!-- Option 1 -->
-          <div id="reply-1" onclick="selectReply(1)" class="reply-card border border-white/10 bg-white/[0.02] text-slate-300 p-2.5 rounded-lg cursor-pointer flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <span class="text-lg">💬</span>
+          <div id="reply-1" onclick="selectReply(1)" class="reply-card border border-white/10 bg-white/[0.02] text-slate-300 p-2 sm:p-2.5 rounded-lg cursor-pointer flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-base sm:text-lg">💬</span>
               <div>
                 <p class="text-xs font-semibold">A casual text</p>
                 <p class="text-[10px] text-slate-400 font-mono">"haha" or "lmao chill"</p>
@@ -210,9 +208,9 @@
           </div>
 
           <!-- Option 2 -->
-          <div id="reply-2" onclick="selectReply(2)" class="reply-card border border-white/10 bg-white/[0.02] text-slate-300 p-2.5 rounded-lg cursor-pointer flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <span class="text-lg">🫠</span>
+          <div id="reply-2" onclick="selectReply(2)" class="reply-card border border-white/10 bg-white/[0.02] text-slate-300 p-2 sm:p-2.5 rounded-lg cursor-pointer flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-base sm:text-lg">🫠</span>
               <div>
                 <p class="text-xs font-semibold">A single low-effort emoji</p>
                 <p class="text-[10px] text-slate-400 font-mono">🫠, 🫡, or 💀</p>
@@ -225,18 +223,21 @@
 
       <!-- Action Buttons -->
       <div class="space-y-2">
-        <button
-          type="button"
+        <!-- Direct Anchor Link with universal in-app deeplink support (Instagram, Hinge, WhatsApp) -->
+        <a
           id="sendWhatsAppBtn"
-          class="w-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 py-3.5 px-4 text-xs sm:text-sm font-bold text-slate-950 shadow-[0_10px_25px_rgba(16,185,129,0.38)] cursor-pointer flex items-center justify-center gap-2 active:scale-95 transition-transform"
+          href="https://wa.me/919654885595?text=omg%20this%20cracked%20me%20up%20%F0%9F%98%82%20I%20am%20alive!"
+          target="_top"
+          rel="noopener noreferrer"
+          class="w-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 py-3 px-4 text-xs sm:text-sm font-bold text-slate-950 shadow-[0_10px_25px_rgba(16,185,129,0.38)] cursor-pointer flex items-center justify-center gap-2 active:scale-95 transition-transform text-center no-underline"
         >
           <span>Send to Karan via WhatsApp</span>
-        </button>
+        </a>
 
         <button
           type="button"
           id="copyBtn"
-          class="w-full rounded-full bg-white/5 border border-white/15 py-2.5 px-3 text-xs font-semibold text-slate-300 cursor-pointer flex items-center justify-center gap-2 active:scale-95 transition-transform"
+          class="w-full rounded-full bg-white/5 border border-white/15 py-2 px-3 text-xs font-semibold text-slate-300 cursor-pointer flex items-center justify-center gap-2 active:scale-95 transition-transform"
         >
           <span>Copy text</span>
         </button>
@@ -244,11 +245,11 @@
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION: Strictly anchored above phone browser controls -->
+  <!-- TOAST NOTIFICATION: Anchored cleanly above bottom webview navigation controls -->
   <div
     id="toast"
     class="fixed left-1/2 -translate-x-1/2 z-[99999] w-[90%] max-w-[360px] rounded-2xl bg-white px-5 py-3 text-center font-bold text-neutral-900 shadow-2xl transition-all duration-300 ease-out opacity-0 pointer-events-none"
-    style="bottom: calc(env(safe-area-inset-bottom, 0px) + 84px);"
+    style="bottom: calc(env(safe-area-inset-bottom, 0px) + 78px);"
   >
     <span id="toastText" class="text-xs sm:text-sm"></span>
   </div>
@@ -288,6 +289,7 @@
     const no2 = document.getElementById('no2');
     const toast = document.getElementById('toast');
     const toastText = document.getElementById('toastText');
+    const sendWhatsAppBtn = document.getElementById('sendWhatsAppBtn');
 
     // Show elevated toast notification
     function showToast(text) {
@@ -303,20 +305,19 @@
       }, 4000); // 4.0 seconds display
     }
 
-    // STRICT EVASION: Locked strictly to upper 46% of viewport
+    // STRICT EVASION: Clamped strictly within upper 45% of viewport
     function dodgeButton(btn, yesBtnId, toastList) {
       showToast(toastList[toastIndex % toastList.length]);
       toastIndex++;
 
       const pad = 16;
       const targetWidth = Math.min(220, Math.max(170, window.innerWidth - 64));
-      const btnHeight = 46;
+      const btnHeight = 44;
 
       const minX = pad;
       const maxX = Math.max(minX + 20, window.innerWidth - targetWidth - pad);
       const minY = pad + 16;
-      // HARD CAP: Evasive button NEVER passes 46% of inner height
-      const maxY = Math.max(minY + 20, Math.floor(window.innerHeight * 0.46) - btnHeight);
+      const maxY = Math.max(minY + 20, Math.floor(window.innerHeight * 0.45) - btnHeight);
 
       const yesBtn = document.getElementById(yesBtnId);
       const yesRect = yesBtn ? yesBtn.getBoundingClientRect() : null;
@@ -336,7 +337,6 @@
         break;
       }
 
-      // Convert button to floating fixed dodging element only upon interaction
       btn.style.position = 'fixed';
       btn.style.left = candX + 'px';
       btn.style.top = candY + 'px';
@@ -366,16 +366,14 @@
       document.getElementById('screen2').classList.add('hidden');
       document.getElementById('screen3').classList.add('hidden');
 
-      // Reset dodging buttons to their natural container styles
       no1.style = '';
-      no1.className = 'w-full rounded-full py-3.5 px-5 text-sm sm:text-base font-bold bg-gradient-to-r from-rose-500 to-pink-600 text-white border border-rose-400/40 shadow-[0_8px_22px_rgba(244,63,94,0.4)] active:scale-95 cursor-pointer transition-transform';
+      no1.className = 'w-full rounded-full py-3 px-5 text-sm sm:text-base font-bold bg-gradient-to-r from-rose-500 to-pink-600 text-white border border-rose-400/40 shadow-[0_8px_22px_rgba(244,63,94,0.4)] active:scale-95 cursor-pointer transition-transform';
 
       no2.style = '';
-      no2.className = 'w-full rounded-full py-3.5 px-5 text-sm sm:text-base font-bold bg-white/5 border border-white/15 text-slate-300 active:scale-95 cursor-pointer transition-transform';
+      no2.className = 'w-full rounded-full py-3 px-5 text-sm sm:text-base font-bold bg-white/5 border border-white/15 text-slate-300 active:scale-95 cursor-pointer transition-transform';
 
       currentScreen = num;
       document.getElementById('screen' + num).classList.remove('hidden');
-      window.scrollTo(0, 0);
 
       if (num === 3 && window.confetti) {
         requestAnimationFrame(() => {
@@ -384,7 +382,6 @@
       }
     }
 
-    // Instant pointerdown transitions (0ms delay)
     document.getElementById('yes1').addEventListener('pointerdown', (e) => {
       e.preventDefault();
       goToScreen(2);
@@ -395,29 +392,54 @@
       goToScreen(3);
     });
 
+    // Update WhatsApp link dynamic target
+    function updateWhatsAppTarget() {
+      const msg = encodeURIComponent(REPLIES[selectedReplyIndex]);
+      const isMobileWebview = /Instagram|FBAN|FBAV|Hinge|WhatsApp/i.test(navigator.userAgent);
+      // Native scheme works best for in-app browsers to escape the sandbox
+      if (isMobileWebview) {
+        sendWhatsAppBtn.href = 'whatsapp://send?phone=919654885595&text=' + msg;
+      } else {
+        sendWhatsAppBtn.href = 'https://api.whatsapp.com/send?phone=919654885595&text=' + msg;
+      }
+    }
+    updateWhatsAppTarget();
+
+    // Universal WhatsApp In-App Browser Click Handler (Instagram, Hinge, Safari, Chrome)
+    sendWhatsAppBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const msg = encodeURIComponent(REPLIES[selectedReplyIndex]);
+      const nativeScheme = 'whatsapp://send?phone=919654885595&text=' + msg;
+      const webFallback = 'https://api.whatsapp.com/send?phone=919654885595&text=' + msg;
+
+      // In-app browsers (Instagram/Hinge/WhatsApp): Direct location assign triggers OS app prompt
+      window.location.href = nativeScheme;
+
+      // Fallback timer if app doesn't open
+      setTimeout(() => {
+        window.location.href = webFallback;
+      }, 700);
+    });
+
     // Screen 3 Reply Format Selector
     function selectReply(idx) {
       selectedReplyIndex = idx;
+      updateWhatsAppTarget();
+
       for (let i = 0; i < 3; i++) {
         const el = document.getElementById('reply-' + i);
         const check = el.querySelector('div:last-child');
         if (i === idx) {
-          el.className = 'reply-card border border-cyan-400 bg-cyan-500/15 text-white p-2.5 rounded-lg cursor-pointer flex items-center justify-between shadow-[0_0_15px_rgba(6,182,212,0.25)]';
+          el.className = 'reply-card border border-cyan-400 bg-cyan-500/15 text-white p-2 sm:p-2.5 rounded-lg cursor-pointer flex items-center justify-between shadow-[0_0_15px_rgba(6,182,212,0.25)]';
           check.className = 'h-4 w-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-[10px]';
           check.textContent = '✓';
         } else {
-          el.className = 'reply-card border border-white/10 bg-white/[0.02] text-slate-300 p-2.5 rounded-lg cursor-pointer flex items-center justify-between';
+          el.className = 'reply-card border border-white/10 bg-white/[0.02] text-slate-300 p-2 sm:p-2.5 rounded-lg cursor-pointer flex items-center justify-between';
           check.className = 'h-4 w-4 rounded-full border border-white/20';
           check.textContent = '';
         }
       }
     }
-
-    document.getElementById('sendWhatsAppBtn').addEventListener('pointerdown', (e) => {
-      e.preventDefault();
-      const msg = encodeURIComponent(REPLIES[selectedReplyIndex]);
-      window.open('https://wa.me/919654885595?text=' + msg, '_blank');
-    });
 
     document.getElementById('copyBtn').addEventListener('pointerdown', (e) => {
       e.preventDefault();
