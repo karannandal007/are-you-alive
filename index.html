@@ -1,426 +1,472 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Not Clickbait - Karan</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <style>
-        :root {
-            --accent-positive: #00f2fe;
-            --accent-negative: #ff2a5f;
-            --text-negative: #ff4d6d;
-            --bg-negative: rgba(26, 7, 15, 0.94);
-            --text-heading: #fef08a;
-            --text-body: #fef3c7;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Proof of Life - Karan</title>
+  <meta name="description" content="Official Proof of Life inquiry from Karan" />
 
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            background-size: 300% 300%;
-            animation: gradient 15s ease infinite;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100dvh; /* Dynamic viewport height for mobile */
-            overflow: hidden;
-            touch-action: manipulation;
-        }
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        .container {
-            width: 88%;
-            max-width: 380px;
-            padding: 24px 20px;
-            background: rgba(15, 23, 42, 0.82); /* High performance, no GPU lag */
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            text-align: center;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.5);
-            z-index: 2;
-            position: relative;
-        }
-
-        /* Mobile-safe video styling */
-        .video-wrapper {
-            width: 100%;
-            max-height: 180px;
-            border-radius: 18px;
-            overflow: hidden;
-            margin-bottom: 14px;
-            background: #000;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .video-wrapper video {
-            width: 100%;
-            height: 100%;
-            max-height: 180px;
-            object-fit: cover;
-            display: block;
-        }
-
-        h1 {
-            font-size: 1.55rem;
-            margin: 0 0 8px 0;
-            line-height: 1.2;
-            font-weight: 700;
-            color: var(--text-heading);
-        }
-
-        .handwritten {
-            font-family: 'Caveat', cursive;
-            font-size: 2.3rem;
-            color: var(--accent-positive);
-            display: block;
-            margin-bottom: 4px;
-            text-shadow: 0 2px 10px rgba(0, 242, 254, 0.3);
-        }
-
-        p {
-            font-size: 0.88rem;
-            color: var(--text-body);
-            opacity: 0.95;
-            margin: 0 0 20px 0;
-            line-height: 1.45;
-            font-weight: 500;
-        }
-
-        .pill {
-            width: 100%;
-            padding: 15px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: block;
-            border: none;
-            touch-action: manipulation;
-        }
-
-        .pill:active {
-            transform: scale(0.96);
-        }
-
-        /* Positive primary action */
-        .yes-btn {
-            background: var(--accent-positive);
-            color: #00334e;
-            box-shadow: 0 8px 20px rgba(0, 242, 254, 0.35);
-            margin-bottom: 12px;
-            position: relative;
-            z-index: 5;
-        }
-
-        /* Initial colored state before click */
-        .no-btn-colored { 
-            background: linear-gradient(135deg, #f43f5e, #db2777); 
-            color: #ffffff; 
-            border: 1px solid rgba(255, 255, 255, 0.35); 
-            box-shadow: 0 8px 20px rgba(244, 63, 94, 0.4);
-            position: relative; 
-            z-index: 10;
-        }
-
-        /* Negative Evasive State: strictly uses transform3d for instant 60fps */
-        .no-btn-evasive { 
-            background: var(--bg-negative) !important; 
-            color: var(--text-negative) !important; 
-            border: 2px solid var(--accent-negative) !important; 
-            box-shadow: 0 0 22px rgba(255, 42, 95, 0.55), 0 10px 30px rgba(0, 0, 0, 0.85) !important;
-            position: fixed !important; 
-            top: 0 !important;
-            left: 0 !important;
-            z-index: 99 !important;
-            transition: transform 0.16s cubic-bezier(0.2, 0.9, 0.3, 1) !important;
-            will-change: transform;
-        }
-
-        /* Screen 3 Reaction Selector */
-        .reaction-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin: 18px 0 12px 0;
-            text-align: left;
-        }
-
-        .reaction-item {
-            padding: 12px 16px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1.5px solid rgba(255, 255, 255, 0.2);
-            color: var(--text-body);
-            font-size: 0.92rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.2s ease;
-        }
-
-        .reaction-item.selected {
-            border-color: var(--accent-positive);
-            background: rgba(0, 242, 254, 0.18);
-            color: #ffffff;
-            box-shadow: 0 0 14px rgba(0, 242, 254, 0.35);
-        }
-
-        /* Top-anchored Toast: completely clears bottom browser controls */
-        #toast {
-            position: fixed;
-            top: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #ffffff;
-            color: #111;
-            padding: 14px 20px;
-            border-radius: 18px;
-            font-weight: 700;
-            font-size: 0.88rem;
-            transition: top 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            z-index: 9999;
-            width: 88%;
-            max-width: 350px;
-            text-align: center;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-            pointer-events: none;
-        }
-
-        #toast.visible {
-            top: calc(18px + env(safe-area-inset-top, 14px));
-        }
-
-        .hidden {
-            display: none !important;
-        }
-    </style>
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    html, body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100dvh;
+      max-height: 100dvh;
+      overflow: hidden;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+      background-color: #070b14;
+    }
+    .font-caveat {
+      font-family: 'Caveat', cursive;
+    }
+    .dodging-btn-active {
+      transition: left 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                  top 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+  </style>
 </head>
-<body>
+<body class="relative flex h-[100dvh] w-screen items-center justify-center bg-[#070b14] text-white overflow-hidden p-3 sm:p-4">
 
-    <!-- SCREEN 1 -->
-    <div id="page1" class="container">
-        <div class="video-wrapper">
-            <video id="vid1" autoplay loop muted playsinline webkit-playsinline preload="auto">
-                <source src="YOUR_TOM_VIDEO_1.mp4" type="video/mp4">
-            </video>
-        </div>
-        <span class="handwritten">Hey, I'm Karan</span>
-        <h1>And this is not clickbait...</h1>
-        <p>My algorithm (and my gut) says we'd be a great match. What do you think?</p>
-        <button id="yes1" class="pill yes-btn" onclick="nextPage(2)">Ah yeah, I guess</button>
-        <button id="no1" class="pill no-btn-colored" onclick="handleNoClick(1)">Hard pass</button>
+  <!-- Ambient Glowing Backdrop -->
+  <div class="pointer-events-none absolute inset-0 overflow-hidden z-0">
+    <div class="absolute -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-cyan-500/15 blur-[120px]"></div>
+    <div class="absolute -bottom-32 -right-32 h-[420px] w-[420px] rounded-full bg-teal-500/15 blur-[120px]"></div>
+  </div>
+
+  <!-- ================= SCREEN 1: PROOF OF LIFE ================= -->
+  <div id="screen1" class="relative z-10 flex flex-col items-center w-full max-w-[380px] mx-auto">
+    <!-- Tom Screaming Video Container -->
+    <div class="relative z-20 -mb-4 sm:-mb-6 w-36 h-36 sm:w-48 sm:h-48 flex items-center justify-center shrink-0">
+      <video
+        id="tomVideo"
+        autoplay loop muted playsinline webkit-playsinline
+        preload="auto"
+        class="w-full h-full object-cover rounded-3xl border-2 border-cyan-400/50 shadow-[0_0_35px_rgba(6,182,212,0.35)] bg-black"
+      >
+        <source src="./tom-screaming.mp4" type="video/mp4" />
+        <source src="./public/tom-screaming.mp4" type="video/mp4" />
+        <source src="/tom-screaming.mp4" type="video/mp4" />
+        <!-- Fallback GIF -->
+        <img src="./tom-screaming.gif" alt="Tom screaming" class="w-full h-full object-cover rounded-3xl" />
+      </video>
     </div>
 
-    <!-- SCREEN 2 -->
-    <div id="page2" class="container hidden">
-        <div class="video-wrapper">
-            <video id="vid2" loop muted playsinline webkit-playsinline preload="none">
-                <source src="YOUR_TOM_VIDEO_2.mp4" type="video/mp4">
-            </video>
-        </div>
-        <span class="handwritten">Wait...</span>
-        <h1>Are you sure?</h1>
-        <p>I usually charge for this level of charm, but for you, it's a <b style="color: #fde047; text-decoration: underline;">free trial</b>. Ready to see if the algorithm was right?</p>
-        <button id="yes2" class="pill yes-btn" onclick="nextPage(3)">Fine I'll text you back</button>
-        <button id="no2" class="pill no-btn-colored" onclick="handleNoClick(2)">Oh no, I change my mind</button>
+    <!-- Outline Card -->
+    <div class="relative z-20 w-full rounded-[24px] sm:rounded-[28px] border-2 border-cyan-400/50 bg-[#070b14]/85 p-5 sm:p-6 text-center shadow-[0_0_35px_rgba(6,182,212,0.15)]">
+      <span class="font-caveat text-3xl sm:text-4xl font-bold text-[#00f2fe] block mb-0.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+        Hey, it's Karan.
+      </span>
+
+      <h1 class="text-xl sm:text-2xl font-extrabold mb-1.5 leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+        Are you still alive?
+      </h1>
+
+      <p class="text-xs sm:text-sm text-slate-200 mb-4 leading-relaxed font-medium drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+        I was getting genuinely worried! It's been so quiet, just need a quick sign of life:
+      </p>
+
+      <!-- Yes 1 Button -->
+      <button
+        id="yes1"
+        type="button"
+        class="relative z-20 mb-2.5 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] transition-all duration-200 active:scale-95 cursor-pointer"
+      >
+        I'm alive! Relax 😂
+      </button>
+
+      <!-- Placeholder slot for No 1 Button -->
+      <div id="no1-slot" class="w-full h-[46px]"></div>
+    </div>
+  </div>
+
+  <!-- ================= SCREEN 2: DANCING RELIEF ================= -->
+  <div id="screen2" class="relative z-10 w-full max-w-[390px] rounded-[24px] sm:rounded-[28px] border-2 border-cyan-400/35 bg-[#070b14]/90 p-4 sm:p-6 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)] hidden">
+    <h1 class="text-xl sm:text-2xl font-extrabold mb-3 text-white leading-tight">
+      Yaay! I'm so relieved you're fine.
+    </h1>
+
+    <div class="relative w-full overflow-hidden mb-4 flex items-center justify-center">
+      <video
+        id="catVideo"
+        autoplay loop muted playsinline webkit-playsinline
+        preload="auto"
+        class="w-full max-h-[24vh] sm:max-h-[240px] object-contain rounded-2xl"
+      >
+        <source src="./dance-cat.mp4" type="video/mp4" />
+        <source src="./public/dance-cat.mp4" type="video/mp4" />
+        <source src="/dance-cat.mp4" type="video/mp4" />
+        <!-- Fallback GIF -->
+        <img src="./dance-cat.gif" alt="Dancing cat" class="w-full max-h-[24vh] object-contain rounded-2xl" />
+      </video>
     </div>
 
-    <!-- SCREEN 3 -->
-    <div id="page3" class="container hidden">
-        <div style="font-size: 3.2rem; margin-bottom: 8px;">🍾🥂</div>
-        <h1 style="color: var(--accent-positive);">IT'S A MATCH!</h1>
-        <p>I’ve already updated my LinkedIn to <strong style="color: #fde047;">'Master Persuader.'</strong></p>
-        
-        <div class="reaction-list">
-            <div id="opt-laughter" class="reaction-item selected" onclick="selectReaction(this)">
-                <span>😂 Pure laughter</span>
-                <span>✓</span>
-            </div>
-            <div class="reaction-item" onclick="selectReaction(this)">
-                <span>😏 Reluctant smile</span>
-                <span></span>
-            </div>
-            <div class="reaction-item" onclick="selectReaction(this)">
-                <span>😎 Impressed by the hustle</span>
-                <span></span>
-            </div>
-        </div>
+    <!-- Yes 2 Button -->
+    <button
+      id="yes2"
+      type="button"
+      class="relative z-10 mb-2.5 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] transition-all duration-200 active:scale-95 cursor-pointer"
+    >
+      Fine, I'll text you back now 💬
+    </button>
 
-        <p style="font-size: 0.8rem; margin: 12px 0 0 0; opacity: 0.8;">Glad you chose this without any technical glitches from my side. See you on the app then! 😉</p>
+    <!-- Placeholder slot for No 2 Button -->
+    <div id="no2-slot" class="w-full h-[46px]"></div>
+  </div>
+
+  <!-- ================= SCREEN 3: WHATSAPP FINALE ================= -->
+  <div id="screen3" class="relative z-10 w-full max-w-[400px] rounded-[24px] sm:rounded-[28px] border-2 border-cyan-400/40 bg-[#070b14]/95 p-4 sm:p-5 text-center shadow-[0_30px_90px_rgba(0,0,0,0.98)] max-h-[96dvh] overflow-y-auto hidden">
+    <div class="mx-auto mb-2 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-400/15 border-2 border-cyan-400/30 text-cyan-300 shadow-[0_0_25px_rgba(6,182,212,0.35)]">
+      ✨
     </div>
 
-    <!-- TOP-ANCHORED TOAST -->
-    <div id="toast"></div>
+    <h1 class="text-xl sm:text-2xl font-extrabold mb-1 text-white tracking-tight">
+      Deal accepted!
+    </h1>
 
-    <script>
-        let noClicks = 0;
-        let toastIndex = 0;
-        let toastTimer = null;
-        let currentPageNum = 1;
-        let currX = 0;
+    <p class="text-xs text-slate-300 mb-3 font-normal">
+      Just glad you're alive. Catch you whenever!
+    </p>
 
-        const toasts = [
-            "⚠️ Error 404: 'Hard Pass' not found in your heart.",
-            "📡 403 Forbidden: High chemistry detected. Access denied.",
-            "🤖 Recalibrating: Our neural net confirms you definitely meant 'Yes'.",
-            "🛑 Critical Alert: The 'No' button is experiencing severe commitment issues."
-        ];
+    <!-- Gauges -->
+    <div class="grid grid-cols-3 gap-2 mb-3 text-center">
+      <div class="rounded-xl border border-white/10 bg-white/[0.03] p-2">
+        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Status</span>
+        <span class="text-[11px] sm:text-xs font-bold text-emerald-400">✓ Forgiven</span>
+      </div>
+      <div class="rounded-xl border border-white/10 bg-white/[0.03] p-2">
+        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Text Debt</span>
+        <span class="text-[11px] sm:text-xs font-bold text-amber-300">$0.00</span>
+      </div>
+      <div class="rounded-xl border border-white/10 bg-white/[0.03] p-2">
+        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Expectations</span>
+        <span class="text-[11px] sm:text-xs font-bold text-cyan-400">0%</span>
+      </div>
+    </div>
 
-        // Ensure videos play reliably on mobile
-        function initVideo(vidId) {
-            const v = document.getElementById(vidId);
-            if (v) {
-                v.muted = true;
-                const playPromise = v.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(() => {
-                        // Mobile auto-retry on touch
-                        document.body.addEventListener('touchstart', () => v.play(), { once: true });
-                    });
-                }
-            }
+    <!-- Reply Picker -->
+    <div class="rounded-xl border border-cyan-400/25 bg-slate-900/60 p-3 text-left mb-3 shadow-inner">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">🔥 Approved Reply Formats:</span>
+        <span class="text-[9px] text-slate-400">Tap to pick</span>
+      </div>
+
+      <div class="space-y-1.5" id="replyOptions">
+        <!-- Option 0 (Default Active) -->
+        <div id="reply-0" onclick="selectReply(0)" class="reply-card border border-cyan-400 bg-cyan-500/15 text-white p-2.5 rounded-lg cursor-pointer flex items-center justify-between shadow-[0_0_15px_rgba(6,182,212,0.25)]">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg">😭</span>
+            <div>
+              <p class="text-xs font-semibold">Pure laughter</p>
+              <p class="text-[10px] text-slate-400 font-mono">"omg this cracked me up 😂"</p>
+            </div>
+          </div>
+          <div class="h-4 w-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-[10px]">✓</div>
+        </div>
+
+        <!-- Option 1 -->
+        <div id="reply-1" onclick="selectReply(1)" class="reply-card border border-white/10 bg-white/[0.02] text-slate-300 p-2.5 rounded-lg cursor-pointer flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg">💬</span>
+            <div>
+              <p class="text-xs font-semibold">A casual text</p>
+              <p class="text-[10px] text-slate-400 font-mono">"haha" or "lmao chill"</p>
+            </div>
+          </div>
+          <div class="h-4 w-4 rounded-full border border-white/20"></div>
+        </div>
+
+        <!-- Option 2 -->
+        <div id="reply-2" onclick="selectReply(2)" class="reply-card border border-white/10 bg-white/[0.02] text-slate-300 p-2.5 rounded-lg cursor-pointer flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg">🫠</span>
+            <div>
+              <p class="text-xs font-semibold">A single low-effort emoji</p>
+              <p class="text-[10px] text-slate-400 font-mono">🫠, 🫡, or 💀</p>
+            </div>
+          </div>
+          <div class="h-4 w-4 rounded-full border border-white/20"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="space-y-2">
+      <button
+        type="button"
+        id="sendWhatsAppBtn"
+        class="w-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 py-3 px-4 text-xs sm:text-sm font-bold text-slate-950 shadow-[0_10px_25px_rgba(16,185,129,0.38)] cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+      >
+        <span>Send to Karan via WhatsApp</span>
+      </button>
+
+      <button
+        type="button"
+        id="copyBtn"
+        class="w-full rounded-full bg-white/5 border border-white/15 py-2 px-3 text-xs font-semibold text-slate-300 cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+      >
+        <span>Copy text</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION (Elevated above Safari/Chrome bottom toolbar) -->
+  <div
+    id="toast"
+    class="fixed left-1/2 -translate-x-1/2 z-[9999] w-[90%] max-w-[360px] rounded-2xl bg-white px-5 py-3 text-center font-bold text-neutral-900 shadow-2xl transition-all duration-300 ease-out -bottom-[140px] opacity-0 pointer-events-none"
+    style="bottom: -140px;"
+  >
+    <span id="toastText" class="text-xs sm:text-sm"></span>
+  </div>
+
+  <!-- RUNAWAY BUTTONS (Mounted directly at document.body level to avoid CSS stacking context bug) -->
+  <button
+    id="no1"
+    type="button"
+    class="rounded-full font-bold cursor-pointer z-40"
+  >
+    Actually ghosting you 👻
+  </button>
+
+  <button
+    id="no2"
+    type="button"
+    class="rounded-full font-bold cursor-pointer z-40 hidden"
+  >
+    Wait, I changed my mind 🏃
+  </button>
+
+  <script>
+    const TOASTS_PAGE1 = [
+      "⚠️ Error 404: My ego cannot process this rejection.",
+      "🛸 Blink twice if you are currently trapped under heavy blankets.",
+      "🪦 I was literally about to start calling local hospitals.",
+      "📭 Did your carrier pigeon get distracted by breadcrumbs?",
+      "🛑 Emergency Alert: Ghosting carries a mandatory 3-meme penalty.",
+      "📡 We both know you saw the notification banner hours ago.",
+      "🏃 Nice try! This button has anti-rejection cloaking shields.",
+    ];
+
+    const TOASTS_PAGE2 = [
+      "🙅‍♂️ Nope! Strictly zero takesies-backsies.",
+      "📜 You already admitted you're alive, the confession is recorded!",
+      "🐕 Too late, I already called off the search squad.",
+      "🛑 The 'Change My Mind' button is experiencing commitment issues.",
+      "🤝 Treaty sealed. You owe me at least a 2-word text.",
+      "💨 You can't un-ring the bell! A reply is now legally required.",
+    ];
+
+    const REPLIES = [
+      "omg this cracked me up 😂 I am alive!",
+      "haha alive and well! 🙌",
+      "🫠 I survived!"
+    ];
+
+    let currentScreen = 1;
+    let selectedReplyIndex = 0;
+    let toastIndex = 0;
+    let toastTimer = null;
+    let no1DodgeCount = 0;
+    let no2DodgeCount = 0;
+
+    const no1 = document.getElementById('no1');
+    const no2 = document.getElementById('no2');
+    const no1Slot = document.getElementById('no1-slot');
+    const no2Slot = document.getElementById('no2-slot');
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+
+    // Force video playback unlock on mobile
+    function ensureVideoPlays(v) {
+      if (!v) return;
+      v.muted = true;
+      v.defaultMuted = true;
+      const playPromise = v.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          document.body.addEventListener('touchstart', () => v.play(), { once: true });
+        });
+      }
+    }
+    ensureVideoPlays(document.getElementById('tomVideo'));
+
+    // Position buttons inside their slot initial resting place
+    function dockButton(btn, slot, isScreen1) {
+      const rect = slot.getBoundingClientRect();
+      btn.classList.remove('dodging-btn-active');
+      btn.style.position = 'fixed';
+      btn.style.left = rect.left + 'px';
+      btn.style.top = rect.top + 'px';
+      btn.style.width = rect.width + 'px';
+      btn.style.height = rect.height + 'px';
+
+      if (isScreen1) {
+        btn.className = 'fixed rounded-full font-bold cursor-pointer z-40 bg-gradient-to-r from-rose-500 to-pink-600 text-white border border-rose-400/40 shadow-[0_8px_22px_rgba(244,63,94,0.4)] text-sm sm:text-base py-3 px-5 flex items-center justify-center';
+      } else {
+        btn.className = 'fixed rounded-full font-bold cursor-pointer z-40 bg-white/5 border border-white/15 text-slate-300 text-sm sm:text-base py-3 px-5 flex items-center justify-center';
+      }
+    }
+
+    // Dock initially
+    window.addEventListener('load', () => dockButton(no1, no1Slot, true));
+    window.addEventListener('resize', () => {
+      if (currentScreen === 1 && no1DodgeCount === 0) dockButton(no1, no1Slot, true);
+      if (currentScreen === 2 && no2DodgeCount === 0) dockButton(no2, no2Slot, false);
+    });
+
+    // Elevated Toast (protected above bottom browser controls)
+    function showToast(text) {
+      if (toastTimer) clearTimeout(toastTimer);
+      toastText.textContent = text;
+      
+      // Calculate safe bottom anchor
+      const safeBottom = 'calc(env(safe-area-inset-bottom, 0px) + 76px)';
+      toast.style.bottom = safeBottom;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+
+      toastTimer = setTimeout(() => {
+        toast.style.bottom = '-140px';
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 4000); // 4.0 Seconds
+    }
+
+    // TRUE TOP 58% EVASION (Absolute mathematical barrier)
+    function executeDodge(btn, yesBtnId, toastList, countVarSetter) {
+      countVarSetter();
+      showToast(toastList[toastIndex % toastList.length]);
+      toastIndex++;
+
+      const pad = 16;
+      const targetWidth = Math.min(220, Math.max(180, window.innerWidth - 64));
+      const btnHeight = 44;
+
+      const minX = pad;
+      const maxX = Math.max(minX + 20, window.innerWidth - targetWidth - pad);
+      const minY = pad + 12;
+      // HARD CAP: Max Y is strictly 55% of inner height
+      const maxY = Math.max(minY + 20, Math.floor(window.innerHeight * 0.55) - btnHeight);
+
+      const yesBtn = document.getElementById(yesBtnId);
+      const yesRect = yesBtn ? yesBtn.getBoundingClientRect() : null;
+
+      let bestX = minX;
+      let bestY = minY;
+
+      for (let i = 0; i < 40; i++) {
+        const rx = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+        const ry = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+
+        if (yesRect && (rx < yesRect.right + 12 && rx + targetWidth > yesRect.left - 12 && ry < yesRect.bottom + 12 && ry + btnHeight > yesRect.top - 12)) {
+          continue;
         }
-        initVideo('vid1');
+        bestX = rx;
+        bestY = ry;
+        break;
+      }
 
-        function showNextToast() {
-            const toastMsg = toasts[toastIndex % toasts.length];
-            toastIndex++;
+      btn.classList.add('dodging-btn-active');
+      btn.style.left = bestX + 'px';
+      btn.style.top = bestY + 'px';
+      btn.style.width = targetWidth + 'px';
+      btn.style.height = btnHeight + 'px';
+      btn.className = 'fixed dodging-btn-active rounded-full font-bold cursor-pointer z-50 border-2 border-[#ff2a5f] bg-[#1a070f]/95 text-[#ff4d6d] backdrop-blur-xl shadow-[0_0_28px_rgba(255,42,95,0.7)] text-xs sm:text-sm whitespace-nowrap flex items-center justify-center';
+    }
 
-            const t = document.getElementById('toast');
-            t.innerText = toastMsg;
-            t.classList.add('visible');
+    // ZERO-LATENCY TOUCH HANDLERS
+    ['pointerdown', 'touchstart', 'mouseenter'].forEach(evt => {
+      no1.addEventListener(evt, (e) => {
+        e.preventDefault();
+        executeDodge(no1, 'yes1', TOASTS_PAGE1, () => no1DodgeCount++);
+      }, { passive: false });
 
-            if (toastTimer) clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => {
-                t.classList.remove('visible');
-            }, 2300);
+      no2.addEventListener(evt, (e) => {
+        e.preventDefault();
+        executeDodge(no2, 'yes2', TOASTS_PAGE2, () => no2DodgeCount++);
+      }, { passive: false });
+    });
+
+    // Zero-lag Screen Transitions
+    function goToScreen(num) {
+      document.getElementById('screen1').classList.add('hidden');
+      document.getElementById('screen2').classList.add('hidden');
+      document.getElementById('screen3').classList.add('hidden');
+      no1.classList.add('hidden');
+      no2.classList.add('hidden');
+
+      currentScreen = num;
+      document.getElementById('screen' + num).classList.remove('hidden');
+
+      if (num === 2) {
+        no2.classList.remove('hidden');
+        no2DodgeCount = 0;
+        requestAnimationFrame(() => {
+          dockButton(no2, no2Slot, false);
+          ensureVideoPlays(document.getElementById('catVideo'));
+        });
+      } else if (num === 3) {
+        requestAnimationFrame(() => {
+          if (window.confetti) {
+            confetti({ particleCount: 160, spread: 80, origin: { y: 0.55 }, zIndex: 10000 });
+          }
+        });
+      }
+    }
+
+    document.getElementById('yes1').addEventListener('pointerdown', () => goToScreen(2));
+    document.getElementById('yes2').addEventListener('pointerdown', () => goToScreen(3));
+
+    // Screen 3 Reply Picker (Pre-selected Option 0)
+    function selectReply(idx) {
+      selectedReplyIndex = idx;
+      for (let i = 0; i < 3; i++) {
+        const el = document.getElementById('reply-' + i);
+        const check = el.querySelector('div:last-child');
+        if (i === idx) {
+          el.className = 'reply-card border border-cyan-400 bg-cyan-500/15 text-white p-2.5 rounded-lg cursor-pointer flex items-center justify-between shadow-[0_0_15px_rgba(6,182,212,0.25)]';
+          check.className = 'h-4 w-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-[10px]';
+          check.textContent = '✓';
+        } else {
+          el.className = 'reply-card border border-white/10 bg-white/[0.02] text-slate-300 p-2.5 rounded-lg cursor-pointer flex items-center justify-between';
+          check.className = 'h-4 w-4 rounded-full border border-white/20';
+          check.textContent = '';
         }
+      }
+    }
 
-        function moveButton(btn) {
-            const btnWidth = btn.offsetWidth || 280;
-            const btnHeight = btn.offsetHeight || 50;
+    document.getElementById('sendWhatsAppBtn').addEventListener('pointerdown', () => {
+      const msg = encodeURIComponent(REPLIES[selectedReplyIndex]);
+      window.open('https://wa.me/919654885595?text=' + msg, '_blank');
+    });
 
-            // Strict upper screen clamping (between 10% and 30% of viewport, max 210px from top)
-            const minX = 16;
-            const maxX = Math.max(minX + 20, window.innerWidth - btnWidth - 16);
-            const minY = Math.max(50, window.innerHeight * 0.10);
-            const maxY = Math.min(window.innerHeight * 0.30, 210);
-
-            // Force jump to opposite horizontal half
-            const isLeft = currX < (minX + maxX) / 2;
-            const xRangeMin = isLeft ? (minX + maxX) / 2 : minX;
-            const xRangeMax = isLeft ? maxX : (minX + maxX) / 2;
-
-            const targetX = Math.floor(Math.random() * (xRangeMax - xRangeMin + 1)) + xRangeMin;
-            const targetY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
-
-            currX = targetX;
-
-            btn.classList.remove('no-btn-colored');
-            btn.classList.add('no-btn-evasive');
-
-            // High-performance hardware accelerated translation
-            btn.style.width = btnWidth + 'px';
-            btn.style.transform = `translate3d(${targetX}px, ${targetY}px, 0)`;
-        }
-
-        function handleNoClick(pageNum) {
-            const btn = document.getElementById('no' + pageNum);
-            noClicks++;
-            showNextToast();
-            moveButton(btn);
-        }
-
-        function setupInteraction(btnId) {
-            const btn = document.getElementById(btnId);
-            
-            btn.addEventListener('mouseover', () => { 
-                if (noClicks >= 1) {
-                    showNextToast();
-                    moveButton(btn);
-                }
-            });
-
-            btn.addEventListener('touchstart', (e) => {
-                if (noClicks >= 1) {
-                    e.preventDefault(); 
-                    e.stopImmediatePropagation();
-                    showNextToast();
-                    moveButton(btn);
-                }
-            }, { passive: false });
-        }
-
-        setupInteraction('no1');
-        setupInteraction('no2');
-
-        function selectReaction(element) {
-            document.querySelectorAll('.reaction-item').forEach(item => {
-                item.classList.remove('selected');
-                item.querySelector('span:last-child').innerText = '';
-            });
-            element.classList.add('selected');
-            element.querySelector('span:last-child').innerText = '✓';
-        }
-
-        function resetBtnState(btnId) {
-            const btn = document.getElementById(btnId);
-            if (btn) {
-                btn.classList.remove('no-btn-evasive');
-                btn.classList.add('no-btn-colored');
-                btn.style.position = 'relative';
-                btn.style.width = '100%';
-                btn.style.transform = 'none';
-            }
-        }
-
-        function nextPage(num) {
-            noClicks = 0;
-            toastIndex = 0;
-            currentPageNum = num;
-            resetBtnState('no1');
-            resetBtnState('no2');
-
-            // Pause previous video to save battery and GPU
-            const v1 = document.getElementById('vid1');
-            const v2 = document.getElementById('vid2');
-            if (num === 2) {
-                if (v1) v1.pause();
-                initVideo('vid2');
-            } else if (num === 3) {
-                if (v1) v1.pause();
-                if (v2) v2.pause();
-            }
-
-            document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
-            document.getElementById('page' + num).classList.remove('hidden');
-
-            if (num === 3) {
-                confetti({ 
-                    particleCount: 140, 
-                    spread: 70, 
-                    origin: { y: 0.6 },
-                    zIndex: 10000 
-                });
-            }
-        }
-    </script>
+    document.getElementById('copyBtn').addEventListener('pointerdown', () => {
+      const text = REPLIES[selectedReplyIndex];
+      navigator.clipboard.writeText(text);
+      showToast('Copied: "' + text + '" 👍');
+      const btn = document.getElementById('copyBtn');
+      btn.innerHTML = '<span class="text-emerald-300">✓ Copied!</span>';
+      setTimeout(() => {
+        btn.innerHTML = '<span>Copy text</span>';
+      }, 2000);
+    });
+  </script>
 </body>
 </html>
