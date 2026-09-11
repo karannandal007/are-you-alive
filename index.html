@@ -196,15 +196,32 @@
 
         let bestX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
         let bestY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+        let found = false;
 
-        // Try up to 30 times to find a clean non-overlapping slot in the top 70%
-        for (let i = 0; i < 30; i++) {
+        // Try up to 40 times to find a clean non-overlapping slot in the top 70%
+        for (let i = 0; i < 40; i++) {
           const candX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
           const candY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
           if (!collidesWithYes(candX, candY)) {
             bestX = candX;
             bestY = candY;
+            found = true;
             break;
+          }
+        }
+
+        // Guaranteed fallback: if random search failed (tight screens), check the four safe-zone corners
+        if (!found) {
+          const corners = [
+            { x: minX, y: minY },
+            { x: maxX, y: minY },
+            { x: minX, y: maxY },
+            { x: maxX, y: maxY }
+          ];
+          const safeCorner = corners.find(c => !collidesWithYes(c.x, c.y));
+          if (safeCorner) {
+            bestX = safeCorner.x;
+            bestY = safeCorner.y;
           }
         }
 
@@ -252,7 +269,7 @@
       };
 
       return (
-        <main className="relative flex min-h-screen w-screen items-center justify-center p-4 bg-[#070b14] overflow-x-hidden">
+        <main className="relative flex h-[100dvh] min-h-[100dvh] w-screen items-center justify-center p-3 sm:p-4 bg-[#070b14] overflow-y-auto overflow-x-hidden">
           {/* Ambient Lighting */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
             <div className="absolute -top-32 -left-32 h-[400px] w-[400px] rounded-full bg-cyan-500/15 blur-[100px]"></div>
@@ -262,7 +279,7 @@
           {/* ================= SCREEN 1: TOM VIDEO ================= */}
           {currentPage === 1 && (
             <div className="relative z-10 flex flex-col items-center w-full max-w-[390px] mx-auto">
-              <div className="relative z-20 -mb-5 sm:-mb-7 w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center">
+              <div className="relative z-20 -mb-5 sm:-mb-7 w-[min(24vh,220px)] h-[min(24vh,220px)] flex items-center justify-center">
                 <video
                   ref={tomVideoRef}
                   src="https://i.makeagif.com/media/2-23-2026/ZJ0z2F.mp4"
@@ -275,16 +292,16 @@
                 />
               </div>
 
-              <div className="relative z-20 w-full rounded-[28px] border-2 border-cyan-400/50 bg-transparent p-6 sm:p-8 text-center shadow-[0_0_35px_rgba(6,182,212,0.15)]">
-                <span className="relative z-10 font-caveat text-4xl sm:text-5xl font-bold text-[#00f2fe] block mb-1 drop-shadow-md">
+              <div className="relative z-20 w-full rounded-[28px] border-2 border-cyan-400/50 bg-transparent p-5 sm:p-6 text-center shadow-[0_0_35px_rgba(6,182,212,0.15)]">
+                <span className="relative z-10 font-caveat text-3xl sm:text-4xl font-bold text-[#00f2fe] block mb-1 drop-shadow-md">
                   Hey, it's Karan.
                 </span>
 
-                <h1 className="relative z-10 text-2xl sm:text-3xl font-extrabold mb-3 text-white leading-tight drop-shadow-md">
+                <h1 className="relative z-10 text-xl sm:text-2xl font-extrabold mb-2 text-white leading-tight drop-shadow-md">
                   Are you still alive?
                 </h1>
 
-                <p className="relative z-10 text-xs sm:text-sm text-slate-200 mb-6 font-medium leading-relaxed drop-shadow">
+                <p className="relative z-10 text-xs sm:text-sm text-slate-200 mb-4 font-medium leading-relaxed drop-shadow">
                   I was getting genuinely worried! It's been so quiet, just need a quick sign of life:
                 </p>
 
@@ -292,7 +309,7 @@
                   id="yes1"
                   type="button"
                   onClick={() => goToPage(2)}
-                  className="relative z-20 mb-3.5 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3.5 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                  className="relative z-20 mb-2.5 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
                 >
                   I'm alive! Relax 😂
                 </button>
@@ -310,7 +327,7 @@
                     width: `${noBtnPos.width}px`,
                     zIndex: 999
                   } : undefined}
-                  className={`block rounded-full py-3.5 px-5 text-sm sm:text-base font-bold cursor-pointer select-none transition-all duration-150 ${
+                  className={`block rounded-full py-3 px-5 text-sm sm:text-base font-bold cursor-pointer select-none transition-all duration-150 ${
                     !noBtnPos
                       ? 'relative z-20 w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-[0_8px_22px_rgba(244,63,94,0.4)]'
                       : 'border-2 border-[#ff2a5f] bg-[#1a070f] text-[#ff4d6d] shadow-[0_0_28px_rgba(255,42,95,0.85)]'
@@ -324,16 +341,16 @@
 
           {/* ================= SCREEN 2: DANCING POKKO CAT ================= */}
           {currentPage === 2 && (
-            <div className="relative z-10 w-full max-w-[440px] rounded-[32px] border-2 border-cyan-400/35 bg-[#070b14] p-6 sm:p-8 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)]">
-              <h1 className="text-2xl sm:text-3xl font-extrabold mb-4 text-white leading-tight">
+            <div className="relative z-10 w-full max-w-[440px] rounded-[32px] border-2 border-cyan-400/35 bg-[#070b14] p-5 sm:p-6 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)]">
+              <h1 className="text-xl sm:text-2xl font-extrabold mb-3 text-white leading-tight">
                 Yaay! I'm so relieved you're fine.
               </h1>
 
-              <div className="relative w-full overflow-hidden mb-5 flex items-center justify-center">
+              <div className="relative w-full overflow-hidden mb-3 flex items-center justify-center">
                 <img
                   src="https://media1.tenor.com/m/jKeYy17E02cAAAAC/ur-mine-you%27re-mine.gif"
                   alt="Dancing cat"
-                  className="w-full max-h-[380px] sm:max-h-[420px] object-contain rounded-2xl"
+                  className="w-full max-h-[26vh] sm:max-h-[30vh] object-contain rounded-2xl"
                   loading="eager"
                 />
               </div>
@@ -342,7 +359,7 @@
                 id="yes2"
                 type="button"
                 onClick={() => goToPage(3)}
-                className="relative z-20 mb-3 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3.5 px-5 font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                className="relative z-20 mb-2.5 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3 px-5 font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
               >
                 Fine, I'll text you back now 💬
               </button>
@@ -360,7 +377,7 @@
                   width: `${noBtnPos.width}px`,
                   zIndex: 999
                 } : undefined}
-                className={`block rounded-full py-3.5 px-5 text-sm sm:text-base font-bold cursor-pointer select-none transition-all duration-150 ${
+                className={`block rounded-full py-3 px-5 text-sm sm:text-base font-bold cursor-pointer select-none transition-all duration-150 ${
                   !noBtnPos
                     ? 'relative z-20 w-full bg-white/5 border border-white/15 text-slate-300 hover:bg-white/10'
                     : 'border-2 border-[#ff2a5f] bg-[#1a070f] text-[#ff4d6d] shadow-[0_0_28px_rgba(255,42,95,0.85)]'
@@ -373,38 +390,38 @@
 
           {/* ================= SCREEN 3: NO-PRESSURE FINALE ================= */}
           {currentPage === 3 && (
-            <div className="relative z-10 w-full max-w-[450px] rounded-[32px] border-2 border-cyan-400/40 bg-[#070b14] p-6 sm:p-8 text-center shadow-[0_30px_90px_rgba(0,0,0,0.98)]">
-              <h1 className="text-2xl sm:text-3xl font-extrabold mb-1.5 text-white tracking-tight">
+            <div className="relative z-10 w-full max-w-[450px] rounded-[32px] border-2 border-cyan-400/40 bg-[#070b14] p-4 sm:p-5 text-center shadow-[0_30px_90px_rgba(0,0,0,0.98)]">
+              <h1 className="text-lg sm:text-xl font-extrabold mb-1 text-white tracking-tight">
                 Deal accepted!
               </h1>
-              <p className="text-xs sm:text-sm text-slate-300 mb-5 font-normal">
+              <p className="text-xs sm:text-sm text-slate-300 mb-2.5 font-normal">
                 Just glad you're alive. Catch you whenever!
               </p>
 
-              <div className="grid grid-cols-3 gap-2.5 mb-5 text-center">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-2.5">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Status</span>
-                  <span className="text-xs font-bold text-emerald-400">✓ Forgiven</span>
+              <div className="grid grid-cols-3 gap-1.5 mb-2.5 text-center">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-1.5">
+                  <span className="text-[9px] uppercase font-bold text-slate-400 block mb-0.5">Status</span>
+                  <span className="text-[11px] font-bold text-emerald-400">✓ Forgiven</span>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-2.5">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Text Debt</span>
-                  <span className="text-xs font-bold text-amber-300">$0.00</span>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-1.5">
+                  <span className="text-[9px] uppercase font-bold text-slate-400 block mb-0.5">Text Debt</span>
+                  <span className="text-[11px] font-bold text-amber-300">$0.00</span>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-2.5">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Expectations</span>
-                  <span className="text-xs font-bold text-cyan-400">0%</span>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-1.5">
+                  <span className="text-[9px] uppercase font-bold text-slate-400 block mb-0.5">Expectations</span>
+                  <span className="text-[11px] font-bold text-cyan-400">0%</span>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-cyan-400/25 bg-slate-900/60 p-4 text-left mb-5 shadow-inner">
-                <div className="flex items-center justify-between mb-2.5">
-                  <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider">
+              <div className="rounded-2xl border border-cyan-400/25 bg-slate-900/60 p-2.5 text-left mb-2.5 shadow-inner">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">
                     Approved Reply Formats:
                   </span>
-                  <span className="text-[10px] text-slate-400">Tap to pick</span>
+                  <span className="text-[9px] text-slate-400">Tap to pick</span>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {REPLY_OPTIONS.map((opt) => {
                     const isSelected = selectedReply === opt.id;
                     return (
@@ -412,24 +429,24 @@
                         key={opt.id}
                         type="button"
                         onClick={() => setSelectedReply(opt.id)}
-                        className={`w-full text-left rounded-xl p-3 border transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 ${
+                        className={`w-full text-left rounded-xl p-2 border transition-all duration-200 cursor-pointer flex items-center justify-between gap-2.5 ${
                           isSelected
                             ? 'bg-cyan-500/15 border-cyan-400 text-white shadow-[0_0_20px_rgba(6,182,212,0.25)]'
                             : 'bg-white/[0.02] border-white/10 text-slate-300 hover:bg-white/[0.05]'
                         }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl shrink-0">{opt.icon}</span>
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-base shrink-0">{opt.icon}</span>
                           <div>
-                            <p className="text-xs font-semibold leading-snug">{opt.title}</p>
-                            <p className="text-[11px] text-slate-400 font-mono mt-0.5">{opt.example}</p>
+                            <p className="text-[11px] font-semibold leading-snug">{opt.title}</p>
+                            <p className="text-[9px] text-slate-400 font-mono">{opt.example}</p>
                           </div>
                         </div>
                         <div className="shrink-0 flex items-center">
                           {isSelected ? (
-                            <div className="h-5 w-5 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-xs">✓</div>
+                            <div className="h-4 w-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-[10px]">✓</div>
                           ) : (
-                            <div className="h-5 w-5 rounded-full border border-white/20" />
+                            <div className="h-4 w-4 rounded-full border border-white/20" />
                           )}
                         </div>
                       </button>
@@ -438,11 +455,11 @@
                 </div>
               </div>
 
-              <div className="space-y-2.5">
+              <div className="space-y-1.5">
                 <button
                   type="button"
                   onClick={handleSendWhatsApp}
-                  className="w-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 py-3.5 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(16,185,129,0.38)] transition-all duration-200 hover:brightness-110 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 py-2.5 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(16,185,129,0.38)] transition-all duration-200 hover:brightness-110 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
                 >
                   <span>💬 Send to Karan via WhatsApp</span>
                 </button>
@@ -450,7 +467,7 @@
                 <button
                   type="button"
                   onClick={copyReply}
-                  className="w-full rounded-full bg-white/5 border border-white/15 py-2.5 px-4 text-xs font-semibold text-slate-300 transition-all duration-200 hover:bg-white/10 hover:text-white active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full rounded-full bg-white/5 border border-white/15 py-2 px-4 text-xs font-semibold text-slate-300 transition-all duration-200 hover:bg-white/10 hover:text-white active:scale-95 cursor-pointer flex items-center justify-center gap-2"
                 >
                   <span>{copied ? '✓ Copied!' : 'Copy text'}</span>
                 </button>
