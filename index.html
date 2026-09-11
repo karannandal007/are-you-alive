@@ -4,94 +4,237 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Proof of Life - Karan</title>
-  
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="description" content="Official Proof of Life inquiry from Karan" />
+
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-  
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <style>
-    html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      overflow: hidden !important;
-      overscroll-behavior: none;
-      position: fixed;
-      inset: 0;
-      touch-action: none;
-    }
     body {
       font-family: 'Poppins', sans-serif;
-      user-select: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      touch-action: none;
       -webkit-user-select: none;
+      user-select: none;
       background-color: #070b14;
     }
-    .font-caveat { font-family: 'Caveat', cursive; }
+    .font-caveat {
+      font-family: 'Caveat', cursive;
+    }
+    .dodging-btn {
+      transition: left 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                  top 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
   </style>
 </head>
-<body class="bg-[#070b14] text-white">
-  <div id="root"></div>
+<body class="relative flex h-[100dvh] w-screen items-center justify-center bg-[#070b14] text-white overflow-hidden p-3 sm:p-4">
 
-  <script type="text/babel">
-    const { useState, useEffect, useRef, useCallback } = React;
+  <!-- Ambient Glowing Backdrop -->
+  <div class="pointer-events-none absolute inset-0 overflow-hidden z-0">
+    <div class="absolute -top-32 -left-32 h-[420px] w-[420px] rounded-full bg-cyan-500/15 blur-[120px]"></div>
+    <div class="absolute -bottom-32 -right-32 h-[420px] w-[420px] rounded-full bg-teal-500/15 blur-[120px]"></div>
+  </div>
 
-    class SoundEngine {
-      constructor() { this.ctx = null; }
-      init() {
-        if (!this.ctx) {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          if (AudioContextClass) this.ctx = new AudioContextClass();
-        }
-        if (this.ctx && this.ctx.state === 'suspended') {
-          this.ctx.resume().catch(() => {});
-        }
-      }
-      playBoing() {
-        try {
-          this.init();
-          if (!this.ctx) return;
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          const t = this.ctx.currentTime;
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(150, t);
-          osc.frequency.exponentialRampToValueAtTime(360, t + 0.12);
-          gain.gain.setValueAtTime(0.35, t);
-          gain.gain.exponentialRampToValueAtTime(0.01, t + 0.22);
-          osc.start(t);
-          osc.stop(t + 0.22);
-        } catch (e) {}
-      }
-      playFanfare() {
-        try {
-          this.init();
-          if (!this.ctx) return;
-          [440, 554, 659, 880].forEach((freq, idx) => {
-            const osc = this.ctx.createOscillator();
-            const gain = this.ctx.createGain();
-            osc.connect(gain);
-            gain.connect(this.ctx.destination);
-            const t = this.ctx.currentTime + idx * 0.08;
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(freq, t);
-            gain.gain.setValueAtTime(0.25, t);
-            gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
-            osc.start(t);
-            osc.stop(t + 0.4);
-          });
-        } catch (e) {}
-      }
-    }
-    const sound = new SoundEngine();
+  <!-- ================= SCREEN 1: PROOF OF LIFE CHECK ================= -->
+  <div id="screen1" class="relative z-10 flex flex-col items-center w-full max-w-[380px] mx-auto">
+    <!-- Tom screaming video -->
+    <div class="relative z-20 -mb-4 sm:-mb-6 w-40 h-40 sm:w-52 sm:h-52 flex items-center justify-center shrink-0">
+      <video
+        id="tomVideo"
+        src="https://media.tenor.com/m/43aV5d_l2HkAAAAC/screaming-lizard.mp4"
+        poster="https://media1.tenor.com/m/43aV5d_l2HkAAAAC/screaming-lizard.gif"
+        autoplay loop muted playsinline
+        class="w-full h-full object-cover rounded-3xl border-2 border-cyan-400/50 shadow-[0_0_35px_rgba(6,182,212,0.35)] bg-black"
+      >
+        <img src="https://media1.tenor.com/m/43aV5d_l2HkAAAAC/screaming-lizard.gif" alt="Tom screaming" class="w-full h-full object-cover rounded-3xl" />
+      </video>
+    </div>
 
+    <!-- Outline Card -->
+    <div class="relative z-20 w-full rounded-[24px] sm:rounded-[28px] border-2 border-cyan-400/50 bg-[#070b14]/80 backdrop-blur-md p-5 sm:p-6 text-center shadow-[0_0_35px_rgba(6,182,212,0.15)]">
+      <span class="font-caveat text-3xl sm:text-4xl font-bold text-[#00f2fe] block mb-0.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+        Hey, it's Karan.
+      </span>
+
+      <h1 class="text-xl sm:text-2xl font-extrabold mb-1.5 leading-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+        Are you still alive?
+      </h1>
+
+      <p class="text-xs sm:text-sm text-slate-200 mb-4 leading-relaxed font-medium drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">
+        I was getting genuinely worried! It's been so quiet, just need a quick sign of life:
+      </p>
+
+      <!-- Yes 1 Button -->
+      <button
+        id="yes1"
+        type="button"
+        onclick="goToScreen(2)"
+        class="relative z-20 mb-2.5 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] transition-all duration-200 hover:brightness-110 active:scale-95 cursor-pointer"
+      >
+        I'm alive! Relax 😂
+      </button>
+
+      <!-- No 1 Runaway Button -->
+      <button
+        id="no1"
+        type="button"
+        class="relative z-20 w-full rounded-full py-3 px-5 text-sm sm:text-base font-bold bg-gradient-to-r from-rose-500 to-pink-600 text-white border border-rose-400/40 shadow-[0_8px_22px_rgba(244,63,94,0.4)] cursor-pointer"
+      >
+        Actually ghosting you 👻
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= SCREEN 2: DANCING HAMSTER / RELIEF ================= -->
+  <div id="screen2" class="relative z-10 w-full max-w-[390px] rounded-[24px] sm:rounded-[28px] border-2 border-cyan-400/35 bg-[#070b14]/90 backdrop-blur-md p-4 sm:p-6 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)] hidden">
+    <h1 class="text-xl sm:text-2xl font-extrabold mb-3 text-white leading-tight">
+      Yaay! I'm so relieved you're fine.
+    </h1>
+
+    <div class="relative w-full overflow-hidden mb-4 flex items-center justify-center">
+      <video
+        id="catVideo"
+        src="https://media.tenor.com/jKeYy17E02cAAAPo/ur-mine-you%27re-mine.mp4"
+        poster="https://media1.tenor.com/m/jKeYy17E02cAAAAC/ur-mine-you%27re-mine.gif"
+        autoplay loop muted playsinline
+        class="w-full max-h-[24vh] sm:max-h-[240px] object-contain rounded-2xl"
+      >
+        <img src="https://media1.tenor.com/m/jKeYy17E02cAAAAC/ur-mine-you%27re-mine.gif" alt="Dancing cat" class="w-full max-h-[24vh] object-contain rounded-2xl" />
+      </video>
+    </div>
+
+    <!-- Yes 2 Button -->
+    <button
+      id="yes2"
+      type="button"
+      onclick="goToScreen(3)"
+      class="relative z-10 mb-2.5 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] transition-all duration-200 hover:brightness-110 active:scale-95 cursor-pointer"
+    >
+      Fine, I'll text you back now 💬
+    </button>
+
+    <!-- No 2 Runaway Button -->
+    <button
+      id="no2"
+      type="button"
+      class="relative z-10 w-full rounded-full py-3 px-5 text-sm sm:text-base font-bold bg-white/5 border border-white/15 text-slate-300 cursor-pointer"
+    >
+      Wait, I changed my mind 🏃
+    </button>
+  </div>
+
+  <!-- ================= SCREEN 3: WHATSAPP FINALE ================= -->
+  <div id="screen3" class="relative z-10 w-full max-w-[400px] rounded-[24px] sm:rounded-[28px] border-2 border-cyan-400/40 bg-[#070b14]/95 backdrop-blur-md p-4 sm:p-5 text-center shadow-[0_30px_90px_rgba(0,0,0,0.98)] max-h-[96dvh] overflow-y-auto hidden">
+    <div class="mx-auto mb-2 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl bg-cyan-400/15 border-2 border-cyan-400/30 text-cyan-300 shadow-[0_0_25px_rgba(6,182,212,0.35)]">
+      ✨
+    </div>
+
+    <h1 class="text-xl sm:text-2xl font-extrabold mb-1 text-white tracking-tight">
+      Deal accepted!
+    </h1>
+
+    <p class="text-xs text-slate-300 mb-3 font-normal">
+      Just glad you're alive. Catch you whenever!
+    </p>
+
+    <!-- Gauges -->
+    <div class="grid grid-cols-3 gap-2 mb-3 text-center">
+      <div class="rounded-xl border border-white/10 bg-white/[0.03] p-2">
+        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Status</span>
+        <span class="text-[11px] sm:text-xs font-bold text-emerald-400">✓ Forgiven</span>
+      </div>
+      <div class="rounded-xl border border-white/10 bg-white/[0.03] p-2">
+        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Text Debt</span>
+        <span class="text-[11px] sm:text-xs font-bold text-amber-300">$0.00</span>
+      </div>
+      <div class="rounded-xl border border-white/10 bg-white/[0.03] p-2">
+        <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Expectations</span>
+        <span class="text-[11px] sm:text-xs font-bold text-cyan-400">0%</span>
+      </div>
+    </div>
+
+    <!-- Reply Picker -->
+    <div class="rounded-xl border border-cyan-400/25 bg-slate-900/60 p-3 text-left mb-3 shadow-inner">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-[10px] font-bold text-amber-300 uppercase tracking-wider">🔥 Approved Reply Formats:</span>
+        <span class="text-[9px] text-slate-400">Tap to pick</span>
+      </div>
+
+      <div class="space-y-1.5" id="replyOptions">
+        <div onclick="selectReply(0)" class="reply-card border border-cyan-400 bg-cyan-500/15 text-white p-2.5 rounded-lg cursor-pointer flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg">😭</span>
+            <div>
+              <p class="text-xs font-semibold">Pure laughter</p>
+              <p class="text-[10px] text-slate-400 font-mono">"omg this cracked me up 😂"</p>
+            </div>
+          </div>
+          <span class="text-cyan-400 font-bold text-sm">✓</span>
+        </div>
+
+        <div onclick="selectReply(1)" class="reply-card border border-white/10 bg-white/[0.02] text-slate-300 p-2.5 rounded-lg cursor-pointer flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg">💬</span>
+            <div>
+              <p class="text-xs font-semibold">A casual text</p>
+              <p class="text-[10px] text-slate-400 font-mono">"haha" or "lmao chill"</p>
+            </div>
+          </div>
+          <span class="text-slate-500 text-sm">○</span>
+        </div>
+
+        <div onclick="selectReply(2)" class="reply-card border border-white/10 bg-white/[0.02] text-slate-300 p-2.5 rounded-lg cursor-pointer flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg">🫠</span>
+            <div>
+              <p class="text-xs font-semibold">A single low-effort emoji</p>
+              <p class="text-[10px] text-slate-400 font-mono">🫠, 🫡, or 💀</p>
+            </div>
+          </div>
+          <span class="text-slate-500 text-sm">○</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="space-y-2">
+      <button
+        type="button"
+        onclick="sendWhatsApp()"
+        class="w-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 py-3 px-4 text-xs sm:text-sm font-bold text-slate-950 shadow-[0_10px_25px_rgba(16,185,129,0.38)] cursor-pointer flex items-center justify-center gap-2"
+      >
+        <span>Send to Karan via WhatsApp</span>
+      </button>
+
+      <button
+        type="button"
+        id="copyBtn"
+        onclick="copySelectedText()"
+        class="w-full rounded-full bg-white/5 border border-white/15 py-2 px-3 text-xs font-semibold text-slate-300 cursor-pointer flex items-center justify-center gap-2"
+      >
+        <span>Copy text</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notification (Stays at bottom, protected because button stays in top 58%) -->
+  <div
+    id="toast"
+    class="fixed left-1/2 -translate-x-1/2 z-[9999] w-[90%] max-w-[360px] rounded-2xl bg-white px-5 py-3 text-center font-bold text-neutral-900 shadow-2xl transition-all duration-300 ease-out -bottom-[120px] opacity-0 pointer-events-none"
+  >
+    <span id="toastText" class="text-xs sm:text-sm"></span>
+  </div>
+
+  <script>
     const TOASTS_PAGE1 = [
       "⚠️ Error 404: My ego cannot process this rejection.",
       "🛸 Blink twice if you are currently trapped under heavy blankets.",
@@ -99,7 +242,7 @@
       "📭 Did your carrier pigeon get distracted by breadcrumbs?",
       "🛑 Emergency Alert: Ghosting carries a mandatory 3-meme penalty.",
       "📡 We both know you saw the notification banner hours ago.",
-      "🏃 Nice try! This button has anti-rejection cloaking shields."
+      "🏃 Nice try! This button has anti-rejection cloaking shields.",
     ];
 
     const TOASTS_PAGE2 = [
@@ -108,450 +251,141 @@
       "🐕 Too late, I already called off the search squad.",
       "🛑 The 'Change My Mind' button is experiencing commitment issues.",
       "🤝 Treaty sealed. You owe me at least a 2-word text.",
-      "💨 You can't un-ring the bell! A reply is now legally required."
+      "💨 You can't un-ring the bell! A reply is now legally required.",
     ];
 
-    const REPLY_OPTIONS = [
-      {
-        id: 'cracked_up',
-        title: 'Pure laughter',
-        example: '"omg this cracked me up 😂"',
-        icon: '😭'
-      },
-      {
-        id: 'haha',
-        title: 'A casual text',
-        example: '"haha" or "lmao chill"',
-        icon: '💬'
-      },
-      {
-        id: 'emoji',
-        title: 'A single low-effort emoji',
-        example: '🫠, 🫡, or 💀',
-        icon: '🫠'
-      },
-      {
-        id: 'voicenote',
-        title: 'An accidental 2-second voice note',
-        example: 'Pure ambient static & rustling',
-        icon: '🎙️'
-      }
+    const REPLIES = [
+      "omg this cracked me up 😂 I am alive!",
+      "haha alive and well! 🙌",
+      "🫠 I survived!"
     ];
 
-    const WHATSAPP_NUMBER = '919654885595';
+    let currentScreen = 1;
+    let selectedReplyIndex = 0;
+    let toastIndex = 0;
+    let toastTimer = null;
+    let no1Moved = false;
+    let no2Moved = false;
 
-    function App() {
-      const [currentPage, setCurrentPage] = useState(1);
-      const [noClicks, setNoClicks] = useState(0);
-      const [toastText, setToastText] = useState('');
-      const [toastVisible, setToastVisible] = useState(false);
-      const [noBtnPos, setNoBtnPos] = useState(null);
-      const [selectedReply, setSelectedReply] = useState('cracked_up');
-      const [copied, setCopied] = useState(false);
-      const [viewportHeight, setViewportHeight] = useState(() =>
-        window.visualViewport ? window.visualViewport.height : window.innerHeight
-      );
-      const [toastBottomOffset, setToastBottomOffset] = useState(35);
+    function showToast(text) {
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toastText');
+      if (toastTimer) clearTimeout(toastTimer);
 
-      const toastIndexRef = useRef(0);
-      const toastTimeoutRef = useRef(null);
-      const tomVideoRef = useRef(null);
-      const viewportRef = useRef({
-        width: window.innerWidth,
-        height: window.visualViewport ? window.visualViewport.height : window.innerHeight,
-        offsetTop: 0
-      });
+      toastText.textContent = text;
+      toast.classList.remove('-bottom-[120px]', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('bottom-[24px]', 'opacity-100');
 
-      useEffect(() => {
-        if (currentPage === 1 && tomVideoRef.current) {
-          tomVideoRef.current.play().catch(() => {});
-        }
-      }, [currentPage]);
-
-      // Tracks the ACTUAL visible area (excludes mobile browser toolbars/keyboard),
-      // since dvh/window.innerHeight can be wrong while the browser chrome is animating.
-      useEffect(() => {
-        const vv = window.visualViewport;
-
-        const update = () => {
-          const height = vv ? vv.height : window.innerHeight;
-          const width = vv ? vv.width : window.innerWidth;
-          const offsetTop = vv ? vv.offsetTop : 0;
-
-          viewportRef.current = { width, height, offsetTop };
-          setViewportHeight(height);
-          // How much of the layout viewport is covered by browser chrome, plus a 35px cushion
-          setToastBottomOffset(Math.max(35, (window.innerHeight - (offsetTop + height)) + 35));
-        };
-
-        update();
-
-        if (vv) {
-          vv.addEventListener('resize', update);
-          vv.addEventListener('scroll', update);
-        } else {
-          window.addEventListener('resize', update);
-        }
-
-        return () => {
-          if (vv) {
-            vv.removeEventListener('resize', update);
-            vv.removeEventListener('scroll', update);
-          } else {
-            window.removeEventListener('resize', update);
-          }
-        };
-      }, []);
-
-      const showToast = useCallback((msg) => {
-        if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-        setToastText(msg);
-        setToastVisible(true);
-        toastTimeoutRef.current = setTimeout(() => setToastVisible(false), 4000);
-      }, []);
-
-      // Evasive move restricted strictly to TOP 70% with collision prevention
-      const dodge = useCallback((page) => {
-        sound.playBoing();
-        setNoClicks(prev => prev + 1);
-
-        const list = page === 1 ? TOASTS_PAGE1 : TOASTS_PAGE2;
-        const msg = list[toastIndexRef.current % list.length];
-        toastIndexRef.current += 1;
-        showToast(msg);
-
-        const vp = viewportRef.current;
-        const btnWidth = Math.min(260, vp.width - 32);
-        const btnHeight = 50;
-
-        // Guardrail: top 70% of the ACTUAL visible viewport only
-        const minY = 20;
-        const maxY = Math.floor(vp.height * 0.70) - btnHeight;
-
-        const minX = 16;
-        const maxX = vp.width - btnWidth - 16;
-
-        // Yes button rectangle for anti-collision check
-        const yesId = page === 1 ? 'yes1' : 'yes2';
-        const yesEl = document.getElementById(yesId);
-        const yesRect = yesEl ? yesEl.getBoundingClientRect() : null;
-
-        const collidesWithYes = (x, y) => {
-          if (!yesRect) return false;
-          const pad = 16;
-          return (
-            x < yesRect.right + pad &&
-            x + btnWidth > yesRect.left - pad &&
-            y < yesRect.bottom + pad &&
-            y + btnHeight > yesRect.top - pad
-          );
-        };
-
-        let bestX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
-        let bestY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
-        let found = false;
-
-        // Try up to 40 times to find a clean non-overlapping slot in the top 70%
-        for (let i = 0; i < 40; i++) {
-          const candX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
-          const candY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
-          if (!collidesWithYes(candX, candY)) {
-            bestX = candX;
-            bestY = candY;
-            found = true;
-            break;
-          }
-        }
-
-        // Guaranteed fallback: if random search failed (tight screens), check the four safe-zone corners
-        if (!found) {
-          const corners = [
-            { x: minX, y: minY },
-            { x: maxX, y: minY },
-            { x: minX, y: maxY },
-            { x: maxX, y: maxY }
-          ];
-          const safeCorner = corners.find(c => !collidesWithYes(c.x, c.y));
-          if (safeCorner) {
-            bestX = safeCorner.x;
-            bestY = safeCorner.y;
-          }
-        }
-
-        setNoBtnPos({ left: bestX, top: bestY, width: btnWidth });
-      }, [showToast]);
-
-      const goToPage = useCallback((page) => {
-        setCurrentPage(page);
-        setNoClicks(0);
-        setNoBtnPos(null);
-
-        // Confetti only on Screen 3
-        if (page === 3) {
-          sound.playFanfare();
-          if (window.confetti) {
-            window.confetti({ particleCount: 160, spread: 85, origin: { y: 0.6 } });
-          }
-        }
-      }, []);
-
-      const getReplyMessage = () => {
-        switch (selectedReply) {
-          case 'cracked_up': return 'omg this cracked me up 😂 I am alive!';
-          case 'haha': return 'haha alive and well! 🙌';
-          case 'emoji': return '🫠 I survived!';
-          case 'voicenote': return '🎙️ Alive! (Sent with zero pressure)';
-          default: return 'I am alive! 😂';
-        }
-      };
-
-      const handleSendWhatsApp = () => {
-        const text = getReplyMessage();
-        const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-        if (window.confetti) {
-          window.confetti({ particleCount: 100, spread: 70, origin: { y: 0.75 } });
-        }
-        window.open(waUrl, '_blank', 'noopener,noreferrer');
-      };
-
-      const copyReply = () => {
-        navigator.clipboard.writeText(getReplyMessage());
-        setCopied(true);
-        showToast(`Copied "${getReplyMessage()}" 👍`);
-        setTimeout(() => setCopied(false), 4000);
-      };
-
-      return (
-        <main
-          style={{
-            height: `${viewportHeight}px`,
-            maxHeight: `${viewportHeight}px`,
-            overflow: 'hidden',
-            touchAction: 'none'
-          }}
-          className="relative flex w-screen items-center justify-center p-3 sm:p-4 bg-[#070b14] overflow-hidden"
-        >
-          {/* Ambient Lighting */}
-          <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
-            <div className="absolute -top-32 -left-32 h-[400px] w-[400px] rounded-full bg-cyan-500/15 blur-[100px]"></div>
-            <div className="absolute -bottom-32 -right-32 h-[400px] w-[400px] rounded-full bg-teal-500/15 blur-[100px]"></div>
-          </div>
-
-          {/* ================= SCREEN 1: TOM VIDEO ================= */}
-          {currentPage === 1 && (
-            <div className="relative z-10 flex flex-col items-center w-full max-w-[390px] mx-auto">
-              <div className="relative z-20 -mb-5 sm:-mb-7 w-[min(24vh,220px)] h-[min(24vh,220px)] flex items-center justify-center">
-                <video
-                  ref={tomVideoRef}
-                  src="https://i.makeagif.com/media/2-23-2026/ZJ0z2F.mp4"
-                  poster="https://i.makeagif.com/media/2-23-2026/ZJ0z2F.gif"
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover rounded-3xl border-2 border-cyan-400/50 shadow-[0_0_35px_rgba(6,182,212,0.35)] bg-black"
-                />
-              </div>
-
-              <div className="relative z-20 w-full rounded-[28px] border-2 border-cyan-400/50 bg-transparent p-5 sm:p-6 text-center shadow-[0_0_35px_rgba(6,182,212,0.15)]">
-                <span className="relative z-10 font-caveat text-3xl sm:text-4xl font-bold text-[#00f2fe] block mb-1 drop-shadow-md">
-                  Hey, it's Karan.
-                </span>
-
-                <h1 className="relative z-10 text-xl sm:text-2xl font-extrabold mb-2 text-white leading-tight drop-shadow-md">
-                  Are you still alive?
-                </h1>
-
-                <p className="relative z-10 text-xs sm:text-sm text-slate-200 mb-4 font-medium leading-relaxed drop-shadow">
-                  I was getting genuinely worried! It's been so quiet, just need a quick sign of life:
-                </p>
-
-                <button
-                  id="yes1"
-                  type="button"
-                  onClick={() => goToPage(2)}
-                  className="relative z-20 mb-2.5 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
-                >
-                  I'm alive! Relax 😂
-                </button>
-
-                <button
-                  id="no1"
-                  type="button"
-                  onClick={(e) => { e.preventDefault(); dodge(1); }}
-                  onMouseEnter={() => dodge(1)}
-                  onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); dodge(1); }}
-                  style={noBtnPos ? {
-                    position: 'fixed',
-                    left: `${noBtnPos.left}px`,
-                    top: `${noBtnPos.top}px`,
-                    width: `${noBtnPos.width}px`,
-                    zIndex: 999
-                  } : undefined}
-                  className={`block rounded-full py-3 px-5 text-sm sm:text-base font-bold cursor-pointer select-none transition-all duration-150 ${
-                    !noBtnPos
-                      ? 'relative z-20 w-full bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-[0_8px_22px_rgba(244,63,94,0.4)]'
-                      : 'border-2 border-[#ff2a5f] bg-[#1a070f] text-[#ff4d6d] shadow-[0_0_28px_rgba(255,42,95,0.85)]'
-                  }`}
-                >
-                  Actually ghosting you 👻
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* ================= SCREEN 2: DANCING POKKO CAT ================= */}
-          {currentPage === 2 && (
-            <div className="relative z-10 w-full max-w-[440px] rounded-[32px] border-2 border-cyan-400/35 bg-[#070b14] p-5 sm:p-6 text-center shadow-[0_25px_80px_rgba(0,0,0,0.98)]">
-              <h1 className="text-xl sm:text-2xl font-extrabold mb-3 text-white leading-tight">
-                Yaay! I'm so relieved you're fine.
-              </h1>
-
-              <div className="relative w-full overflow-hidden mb-3 flex items-center justify-center">
-                <img
-                  src="https://media1.tenor.com/m/jKeYy17E02cAAAAC/ur-mine-you%27re-mine.gif"
-                  alt="Dancing cat"
-                  className="w-full max-h-[26vh] sm:max-h-[30vh] object-contain rounded-2xl"
-                  loading="eager"
-                />
-              </div>
-
-              <button
-                id="yes2"
-                type="button"
-                onClick={() => goToPage(3)}
-                className="relative z-20 mb-2.5 block w-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 py-3 px-5 font-bold text-slate-950 shadow-[0_10px_25px_rgba(6,182,212,0.4)] hover:brightness-110 active:scale-95 transition-all cursor-pointer"
-              >
-                Fine, I'll text you back now 💬
-              </button>
-
-              <button
-                id="no2"
-                type="button"
-                onClick={(e) => { e.preventDefault(); dodge(2); }}
-                onMouseEnter={() => dodge(2)}
-                onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); dodge(2); }}
-                style={noBtnPos ? {
-                  position: 'fixed',
-                  left: `${noBtnPos.left}px`,
-                  top: `${noBtnPos.top}px`,
-                  width: `${noBtnPos.width}px`,
-                  zIndex: 999
-                } : undefined}
-                className={`block rounded-full py-3 px-5 text-sm sm:text-base font-bold cursor-pointer select-none transition-all duration-150 ${
-                  !noBtnPos
-                    ? 'relative z-20 w-full bg-white/5 border border-white/15 text-slate-300 hover:bg-white/10'
-                    : 'border-2 border-[#ff2a5f] bg-[#1a070f] text-[#ff4d6d] shadow-[0_0_28px_rgba(255,42,95,0.85)]'
-                }`}
-              >
-                Wait, I changed my mind 🏃
-              </button>
-            </div>
-          )}
-
-          {/* ================= SCREEN 3: NO-PRESSURE FINALE ================= */}
-          {currentPage === 3 && (
-            <div className="relative z-10 w-full max-w-[450px] rounded-[32px] border-2 border-cyan-400/40 bg-[#070b14] p-4 sm:p-5 text-center shadow-[0_30px_90px_rgba(0,0,0,0.98)]">
-              <h1 className="text-lg sm:text-xl font-extrabold mb-1 text-white tracking-tight">
-                Deal accepted!
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-300 mb-2.5 font-normal">
-                Just glad you're alive. Catch you whenever!
-              </p>
-
-              <div className="grid grid-cols-3 gap-1.5 mb-2.5 text-center">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-1.5">
-                  <span className="text-[9px] uppercase font-bold text-slate-400 block mb-0.5">Status</span>
-                  <span className="text-[11px] font-bold text-emerald-400">✓ Forgiven</span>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-1.5">
-                  <span className="text-[9px] uppercase font-bold text-slate-400 block mb-0.5">Text Debt</span>
-                  <span className="text-[11px] font-bold text-amber-300">$0.00</span>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-1.5">
-                  <span className="text-[9px] uppercase font-bold text-slate-400 block mb-0.5">Expectations</span>
-                  <span className="text-[11px] font-bold text-cyan-400">0%</span>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-cyan-400/25 bg-slate-900/60 p-2.5 text-left mb-2.5 shadow-inner">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">
-                    Approved Reply Formats:
-                  </span>
-                  <span className="text-[9px] text-slate-400">Tap to pick</span>
-                </div>
-
-                <div className="space-y-1">
-                  {REPLY_OPTIONS.map((opt) => {
-                    const isSelected = selectedReply === opt.id;
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() => setSelectedReply(opt.id)}
-                        className={`w-full text-left rounded-xl p-2 border transition-all duration-200 cursor-pointer flex items-center justify-between gap-2.5 ${
-                          isSelected
-                            ? 'bg-cyan-500/15 border-cyan-400 text-white shadow-[0_0_20px_rgba(6,182,212,0.25)]'
-                            : 'bg-white/[0.02] border-white/10 text-slate-300 hover:bg-white/[0.05]'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <span className="text-base shrink-0">{opt.icon}</span>
-                          <div>
-                            <p className="text-[11px] font-semibold leading-snug">{opt.title}</p>
-                            <p className="text-[9px] text-slate-400 font-mono">{opt.example}</p>
-                          </div>
-                        </div>
-                        <div className="shrink-0 flex items-center">
-                          {isSelected ? (
-                            <div className="h-4 w-4 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold text-[10px]">✓</div>
-                          ) : (
-                            <div className="h-4 w-4 rounded-full border border-white/20" />
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <button
-                  type="button"
-                  onClick={handleSendWhatsApp}
-                  className="w-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 py-2.5 px-5 text-sm sm:text-base font-bold text-slate-950 shadow-[0_10px_25px_rgba(16,185,129,0.38)] transition-all duration-200 hover:brightness-110 active:scale-95 cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <span>💬 Send to Karan via WhatsApp</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={copyReply}
-                  className="w-full rounded-full bg-white/5 border border-white/15 py-2 px-4 text-xs font-semibold text-slate-300 transition-all duration-200 hover:bg-white/10 hover:text-white active:scale-95 cursor-pointer flex items-center justify-center gap-2"
-                >
-                  <span>{copied ? '✓ Copied!' : 'Copy text'}</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Toast Notification */}
-          <div
-            style={{ bottom: `${toastBottomOffset}px` }}
-            className={`fixed left-1/2 z-[9999] w-[90%] max-w-[380px] rounded-2xl bg-white px-5 py-3.5 text-center font-bold text-neutral-900 shadow-2xl transition-all duration-300 ${
-              toastVisible
-                ? '-translate-x-1/2 translate-y-0 opacity-100 scale-100'
-                : '-translate-x-1/2 translate-y-[140px] opacity-0 scale-90 pointer-events-none'
-            }`}
-          >
-            <span className="text-xs sm:text-sm">{toastText}</span>
-          </div>
-        </main>
-      );
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('bottom-[24px]', 'opacity-100');
+        toast.classList.add('-bottom-[120px]', 'opacity-0', 'pointer-events-none');
+      }, 4000); // 4.0 seconds as requested
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    function moveDodgingButton(btn, yesBtnId, list) {
+      showToast(list[toastIndex % list.length]);
+      toastIndex++;
+
+      const pad = 16;
+      const targetWidth = Math.min(230, Math.max(180, window.innerWidth - 64));
+      const btnHeight = 44;
+
+      // Restrict evasion strictly to upper 58% of viewport
+      const minX = pad;
+      const maxX = window.innerWidth - targetWidth - pad;
+      const minY = pad + 12;
+      const maxY = Math.max(minY + 20, Math.floor(window.innerHeight * 0.58) - btnHeight);
+
+      const yesBtn = document.getElementById(yesBtnId);
+      const yesRect = yesBtn ? yesBtn.getBoundingClientRect() : null;
+
+      let candX = minX;
+      let candY = minY;
+
+      for (let i = 0; i < 40; i++) {
+        const x = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+        const y = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+
+        // Collision check with yes button
+        if (yesRect && (x < yesRect.right + 16 && x + targetWidth > yesRect.left - 16 && y < yesRect.bottom + 16 && y + btnHeight > yesRect.top - 16)) {
+          continue;
+        }
+        candX = x;
+        candY = y;
+        break;
+      }
+
+      btn.style.position = 'fixed';
+      btn.style.left = candX + 'px';
+      btn.style.top = candY + 'px';
+      btn.style.width = targetWidth + 'px';
+      btn.style.zIndex = '50';
+      btn.classList.add('dodging-btn', 'border-2', 'border-[#ff2a5f]', 'bg-[#1a070f]/95', 'text-[#ff4d6d]', 'backdrop-blur-xl', 'shadow-[0_0_28px_rgba(255,42,95,0.7)]');
+      btn.classList.remove('relative', 'w-full', 'bg-gradient-to-r', 'from-rose-500', 'to-pink-600', 'bg-white/5');
+    }
+
+    const no1 = document.getElementById('no1');
+    const no2 = document.getElementById('no2');
+
+    ['mouseenter', 'touchstart', 'pointerdown'].forEach(evt => {
+      no1.addEventListener(evt, (e) => {
+        e.preventDefault();
+        moveDodgingButton(no1, 'yes1', TOASTS_PAGE1);
+      });
+      no2.addEventListener(evt, (e) => {
+        e.preventDefault();
+        moveDodgingButton(no2, 'yes2', TOASTS_PAGE2);
+      });
+    });
+
+    function goToScreen(screenNumber) {
+      document.getElementById('screen1').classList.add('hidden');
+      document.getElementById('screen2').classList.add('hidden');
+      document.getElementById('screen3').classList.add('hidden');
+
+      // Reset dodging buttons to default position inside the card
+      if (no1) { no1.style = ''; no1.className = 'relative z-20 w-full rounded-full py-3 px-5 text-sm sm:text-base font-bold bg-gradient-to-r from-rose-500 to-pink-600 text-white border border-rose-400/40 shadow-[0_8px_22px_rgba(244,63,94,0.4)] cursor-pointer'; }
+      if (no2) { no2.style = ''; no2.className = 'relative z-10 w-full rounded-full py-3 px-5 text-sm sm:text-base font-bold bg-white/5 border border-white/15 text-slate-300 cursor-pointer'; }
+
+      document.getElementById('screen' + screenNumber).classList.remove('hidden');
+      currentScreen = screenNumber;
+
+      if (screenNumber === 3 && window.confetti) {
+        confetti({ particleCount: 160, spread: 80, origin: { y: 0.55 }, zIndex: 10000 });
+      }
+    }
+
+    function selectReply(idx) {
+      selectedReplyIndex = idx;
+      const cards = document.querySelectorAll('.reply-card');
+      cards.forEach((card, i) => {
+        if (i === idx) {
+          card.className = 'reply-card border border-cyan-400 bg-cyan-500/15 text-white p-2.5 rounded-lg cursor-pointer flex items-center justify-between';
+          card.querySelector('span:last-child').textContent = '✓';
+          card.querySelector('span:last-child').className = 'text-cyan-400 font-bold text-sm';
+        } else {
+          card.className = 'reply-card border border-white/10 bg-white/[0.02] text-slate-300 p-2.5 rounded-lg cursor-pointer flex items-center justify-between';
+          card.querySelector('span:last-child').textContent = '○';
+          card.querySelector('span:last-child').className = 'text-slate-500 text-sm';
+        }
+      });
+    }
+
+    function sendWhatsApp() {
+      const msg = encodeURIComponent(REPLIES[selectedReplyIndex]);
+      window.open('https://wa.me/919654885595?text=' + msg, '_blank');
+    }
+
+    function copySelectedText() {
+      const text = REPLIES[selectedReplyIndex];
+      navigator.clipboard.writeText(text);
+      showToast('Copied: "' + text + '" 👍');
+      const btn = document.getElementById('copyBtn');
+      btn.innerHTML = '<span class="text-emerald-300">✓ Copied!</span>';
+      setTimeout(() => {
+        btn.innerHTML = '<span>Copy text</span>';
+      }, 2000);
+    }
   </script>
 </body>
 </html>
