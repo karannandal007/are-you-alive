@@ -140,16 +140,60 @@
       const [noBtnPos, setNoBtnPos] = useState(null);
       const [selectedReply, setSelectedReply] = useState('cracked_up');
       const [copied, setCopied] = useState(false);
+      const [viewportHeight, setViewportHeight] = useState(() =>
+        window.visualViewport ? window.visualViewport.height : window.innerHeight
+      );
+      const [toastBottomOffset, setToastBottomOffset] = useState(35);
 
       const toastIndexRef = useRef(0);
       const toastTimeoutRef = useRef(null);
       const tomVideoRef = useRef(null);
+      const viewportRef = useRef({
+        width: window.innerWidth,
+        height: window.visualViewport ? window.visualViewport.height : window.innerHeight,
+        offsetTop: 0
+      });
 
       useEffect(() => {
         if (currentPage === 1 && tomVideoRef.current) {
           tomVideoRef.current.play().catch(() => {});
         }
       }, [currentPage]);
+
+      // Tracks the ACTUAL visible area (excludes mobile browser toolbars/keyboard),
+      // since dvh/window.innerHeight can be wrong while the browser chrome is animating.
+      useEffect(() => {
+        const vv = window.visualViewport;
+
+        const update = () => {
+          const height = vv ? vv.height : window.innerHeight;
+          const width = vv ? vv.width : window.innerWidth;
+          const offsetTop = vv ? vv.offsetTop : 0;
+
+          viewportRef.current = { width, height, offsetTop };
+          setViewportHeight(height);
+          // How much of the layout viewport is covered by browser chrome, plus a 35px cushion
+          setToastBottomOffset(Math.max(35, (window.innerHeight - (offsetTop + height)) + 35));
+        };
+
+        update();
+
+        if (vv) {
+          vv.addEventListener('resize', update);
+          vv.addEventListener('scroll', update);
+        } else {
+          window.addEventListener('resize', update);
+        }
+
+        return () => {
+          if (vv) {
+            vv.removeEventListener('resize', update);
+            vv.removeEventListener('scroll', update);
+          } else {
+            window.removeEventListener('resize', update);
+          }
+        };
+      }, []);
 
       const showToast = useCallback((msg) => {
         if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
@@ -168,15 +212,16 @@
         toastIndexRef.current += 1;
         showToast(msg);
 
-        const btnWidth = Math.min(260, window.innerWidth - 32);
+        const vp = viewportRef.current;
+        const btnWidth = Math.min(260, vp.width - 32);
         const btnHeight = 50;
 
-        // Guardrail: top 70% of the viewport only
+        // Guardrail: top 70% of the ACTUAL visible viewport only
         const minY = 20;
-        const maxY = Math.floor(window.innerHeight * 0.70) - btnHeight;
+        const maxY = Math.floor(vp.height * 0.70) - btnHeight;
 
         const minX = 16;
-        const maxX = window.innerWidth - btnWidth - 16;
+        const maxX = vp.width - btnWidth - 16;
 
         // Yes button rectangle for anti-collision check
         const yesId = page === 1 ? 'yes1' : 'yes2';
@@ -269,7 +314,10 @@
       };
 
       return (
-        <main className="relative flex h-[100dvh] min-h-[100dvh] w-screen items-center justify-center p-3 sm:p-4 bg-[#070b14] overflow-y-auto overflow-x-hidden">
+        <main
+          style={{ height: `${viewportHeight}px` }}
+          className="relative flex w-screen items-center justify-center p-3 sm:p-4 bg-[#070b14] overflow-y-auto overflow-x-hidden"
+        >
           {/* Ambient Lighting */}
           <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
             <div className="absolute -top-32 -left-32 h-[400px] w-[400px] rounded-full bg-cyan-500/15 blur-[100px]"></div>
@@ -477,8 +525,11 @@
 
           {/* Toast Notification */}
           <div
-            className={`fixed left-1/2 -translate-x-1/2 z-[9999] w-[90%] max-w-[380px] rounded-2xl bg-white px-5 py-3.5 text-center font-bold text-neutral-900 shadow-2xl transition-all duration-300 ${
-              toastVisible ? 'bottom-[35px] opacity-100 scale-100' : '-bottom-[120px] opacity-0 scale-90 pointer-events-none'
+            style={{ bottom: `${toastBottomOffset}px` }}
+            className={`fixed left-1/2 z-[9999] w-[90%] max-w-[380px] rounded-2xl bg-white px-5 py-3.5 text-center font-bold text-neutral-900 shadow-2xl transition-all duration-300 ${
+              toastVisible
+                ? '-translate-x-1/2 translate-y-0 opacity-100 scale-100'
+                : '-translate-x-1/2 translate-y-[140px] opacity-0 scale-90 pointer-events-none'
             }`}
           >
             <span className="text-xs sm:text-sm">{toastText}</span>
